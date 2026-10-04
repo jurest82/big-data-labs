@@ -1,0 +1,11 @@
+{
+  "name": "big-data-labs",
+  "private": true,
+  "devDependencies": {
+    "prettier": "^3.9.9"
+  },
+  "scripts": {
+    "format": "prettier --write . && yapf -i -r labs/",
+    "format:check": "prettier --check . && yapf --diff -r labs/"
+  }
+}

@@ -29,7 +29,7 @@ It is built as a teaching project: every lab runs inside Docker, so nothing is i
 
 | Lab | Topic                                                          | Runs on          | Status      |
 | --- | -------------------------------------------------------------- | ---------------- | ----------- |
-| 1A  | OLTP anomalies, normalization and JOINs                        | Local PostgreSQL | Coming soon |
+| 1A  | OLTP anomalies, normalization and JOINs                        | Local PostgreSQL | Ready       |
 | 1B  | Star schema, a query by category and month, and a data mart    | Local PostgreSQL | Coming soon |
 | 2   | Data lake: S3, a Glue crawler and Athena                       | AWS              | Coming soon |
 | 3   | Apache Iceberg table: update, schema evolution and time travel | AWS              | Coming soon |

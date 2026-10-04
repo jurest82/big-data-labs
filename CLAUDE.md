@@ -46,6 +46,8 @@ Labs 2 to 4 share one base stack (S3 bucket with zones, a Glue database and an A
 
 `npm run format` runs Prettier (JSON, YAML, Markdown) and `yapf` (Python, configured in `pyproject.toml`). `npm run format:check` checks without writing. `pylint` uses the same `pyproject.toml`.
 
+`npm run spell` runs cspell on Markdown, Python, SQL and YAML. Every word it reports that is correct (a service name, a SQL or Python identifier, a name from the sample data) goes into `words` in `cspell.json`, in alphabetical order and lowercase, so the editor and the command agree. Run it before each commit and leave it with zero issues. Misspelled words are fixed in the text, not added to the dictionary.
+
 ## Documentation convention
 
 Human-facing docs (`README.md` at any level) never reference `CLAUDE.md`: it is written for the AI agent working in this repository, not for people reading the project's documentation.

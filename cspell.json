@@ -1,0 +1,43 @@
+{
+  "$schema": "https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json",
+  "version": "0.2",
+  "language": "en",
+  "files": ["**/*.md", "**/*.py", "**/*.sql", "**/*.yml"],
+  "enableGlobDot": true,
+  "ignorePaths": ["node_modules/**", ".serverless/**"],
+  "useGitignore": true,
+  "languageSettings": [
+    {
+      "languageId": "python",
+      "ignoreRegExpList": ["/^\\s*from.*import/gm"]
+    }
+  ],
+  "words": [
+    "athena",
+    "avenida",
+    "bashhistory",
+    "calle",
+    "carrera",
+    "commandhistory",
+    "dockerized",
+    "dpage",
+    "eafit",
+    "firehose",
+    "gómez",
+    "lakehouse",
+    "medallion",
+    "medellín",
+    "pgadmin",
+    "pgdatabase",
+    "pghost",
+    "pgpassword",
+    "pguser",
+    "postgres",
+    "psql",
+    "pylint",
+    "pyproject",
+    "pérez",
+    "sofía",
+    "yapf"
+  ]
+}

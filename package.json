@@ -2,10 +2,12 @@
   "name": "big-data-labs",
   "private": true,
   "devDependencies": {
+    "cspell": "^10.3.6",
     "prettier": "^3.9.9"
   },
   "scripts": {
     "format": "prettier --write . && yapf -i -r labs/",
-    "format:check": "prettier --check . && yapf --diff -r labs/"
+    "format:check": "prettier --check . && yapf --diff -r labs/",
+    "spell": "cspell --no-progress"
   }
 }

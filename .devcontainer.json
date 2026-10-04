@@ -22,28 +22,6 @@
         "yzhang.markdown-all-in-one"
       ],
       "settings": {
-        "cSpell.files": ["**/*.md", "**/*.py"],
-        "cSpell.language": "en",
-        "cSpell.languageSettings": [
-          {
-            "languageId": "python",
-            "ignoreRegExpList": [
-              "/^\\s*from.*import/gm" // Ignore imports
-            ]
-          }
-        ],
-        "cSpell.words": [
-          "Athena",
-          "Dockerized",
-          "Firehose",
-          "lakehouse",
-          "Medallion",
-          "pgadmin",
-          "postgres",
-          "pylint",
-          "pyproject",
-          "yapf"
-        ],
         "editor.codeActionsOnSave": {
           "source.fixAll.markdownlint": "explicit",
           "source.organizeImports": "explicit"

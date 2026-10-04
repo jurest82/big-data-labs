@@ -4,7 +4,7 @@
 
 Hands-on labs for **SI7006 Storage and Processing of Big Data** (EAFIT, master's program in Data Science and Analytics). Each lab accompanies a block of the course presentations: students run it during the session, in their own AWS account when the lab uses AWS, and tear everything down when they finish.
 
-The first labs (the first weekend) use an online store as their example, with orders, customers, products, reviews (JSON), product photos and click events. There is no single running example for the whole course: the labs of later weeks may use a different context, so do not assume the store when building them. Everything in this repository is written in English: code, documentation, lab statements, and the data itself (table and column names included). The course slides use Spanish names for the same things, so every lab README ends with an equivalence table.
+The first labs (the first weekend) use an online store as their example, with orders, customers, products, reviews (JSON), product photos and click events. There is no single running example for the whole course: the labs of later weeks may use a different context, so do not assume the store when building them. Everything in this repository is written in English: code, documentation, lab statements, and the data itself (table and column names included).
 
 ## How to work in this repository
 
@@ -36,7 +36,7 @@ Labs 2 to 4 share one base stack (S3 bucket with zones, a Glue database and an A
 
 ## Lab conventions
 
-- Each lab README follows the same standard as the root `README.md`: a `# README` title with a table of contents, then Summary, Setup (the steps), Remove (how to destroy what was deployed) and Glossary, separated by `---`. It also includes the expected result and the Spanish equivalence table for the terms used on the slides.
+- Each lab README follows the same standard as the root `README.md`: a `# README` title with a table of contents, then Summary, Setup (the steps, each with its expected result) and Remove (how to destroy what was deployed), separated by `---`. A Glossary goes only when there is something to define, such as environment variables. A lab README does not say after which slide of the course it is done or which slides it relates to: the presentation points to the lab, not the other way around.
 - Windows compatibility matters: most students use Windows and the maintainer uses macOS. `.gitattributes` forces LF line endings on every text file and `.devcontainer.json` strips any CR from `.docker/*.sh` on creation. Keep both working when adding new file types or scripts (add the extension to `.gitattributes`).
 - Data and schema names are in English (`orders`, `customers`, `products`, `order_items`, `reviews`, `clicks`).
 - Verify every claim about an AWS service against its official documentation before writing it into a lab. Do not answer from memory.

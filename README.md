@@ -14,7 +14,6 @@
   - [Glossary](#glossary)
     - [AWS environment variables: `.envs/aws.env`](#aws-environment-variables-envsawsenv)
     - [Serverless Framework environment variables: `.envs/sls.env`](#serverless-framework-environment-variables-envsslsenv)
-    - [Local services environment variables](#local-services-environment-variables)
   - [License](#license)
 
 ---
@@ -102,15 +101,6 @@ You can, alternatively, delete the `AWS Cloud Formation` stack manually using `A
 ### Serverless Framework environment variables: `.envs/sls.env`
 
 - `SERVERLESS_ACCESS_KEY`: Serverless _Secret API Key_. Needed to deploy stack information to Serverless cloud.
-
-### Local services environment variables
-
-Defined in `.docker/docker-compose.yml` for the development container. They are only defaults for `psql`, and point to the local PostgreSQL service.
-
-- `PGHOST`: Host of the local PostgreSQL service
-- `PGUSER`: User of the local PostgreSQL service
-- `PGPASSWORD`: Password of the local PostgreSQL service
-- `PGDATABASE`: Default database of the local PostgreSQL service
 
 ---
 

@@ -59,8 +59,6 @@ Run `02_anomalies.sql` block by block. The experiments run on a copy of the tabl
 
 Question: why can the table not keep a customer who has not bought anything?
 
-Try it: write a query that finds the customers that have more than one address in `flat_orders_copy`.
-
 ### Step 3: Normalize it
 
 Run `03_normalize.sql`. It creates `customers`, `products`, `orders` and `order_items`. Each table has a primary key (`PRIMARY KEY`), and the tables that point to another one have a foreign key (`REFERENCES`). The key of `order_items` is composite: `(order_id, product_id)`.
@@ -83,8 +81,6 @@ Run `05_join.sql` block by block.
 - **Block 2:** creates the view `flat_orders_rebuilt`, which rebuilds the original flat table from the four tables.
 - **Block 3:** compares the original table with the rebuilt one in both directions. Expected: 0 rows each time, so nothing was lost.
 
-Try it: write a query that returns the total amount per customer. Expected: Ana Pérez 215000, Luis Gómez 180000 and Marta Ruiz 105000.
-
 ### Step 6: Repeat the operations
 
 Run `06_anomalies_fixed.sql` block by block. They are the same three operations of step 2, now on the four tables.
@@ -93,10 +89,6 @@ Run `06_anomalies_fixed.sql` block by block. They are the same three operations 
 - **Block 2, delete:** Marta's order is deleted, lines first and then the order. Expected: Marta is still a customer.
 - **Block 3, insert:** a new customer with no orders registers without problems.
 - **Block 4:** deleting Luis fails, because he still has orders. Expected: an error, `violates foreign key constraint`.
-
-Question: why did the delete in block 2 not take Marta with it?
-
-Try it: register a new order for a new customer, and check it with `flat_orders_rebuilt`.
 
 ---
 

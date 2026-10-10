@@ -1,0 +1,32 @@
+Resources:
+  LakeBucketName:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/LakeBucketName
+      Tier: Standard
+      Type: String
+      Value: !Ref LakeBucket
+
+  LakeBucketArn:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/LakeBucketArn
+      Tier: Standard
+      Type: String
+      Value: !GetAtt LakeBucket.Arn
+
+  GlueDatabaseName:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/GlueDatabaseName
+      Tier: Standard
+      Type: String
+      Value: ${self:custom.lake.databaseName}
+
+  AthenaWorkGroupName:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/AthenaWorkGroupName
+      Tier: Standard
+      Type: String
+      Value: !Ref AthenaWorkGroup

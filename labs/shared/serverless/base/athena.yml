@@ -1,0 +1,15 @@
+Resources:
+  AthenaWorkGroup:
+    Type: AWS::Athena::WorkGroup
+    Properties:
+      Name: ${self:custom.lake.workgroupName}
+      Description: Queries of the data lake labs
+      State: ENABLED
+      RecursiveDeleteOption: true
+      WorkGroupConfiguration:
+        EnforceWorkGroupConfiguration: true
+        PublishCloudWatchMetricsEnabled: false
+        # A query that would scan more than 2 GB is cancelled
+        BytesScannedCutoffPerQuery: 2000000000
+        ResultConfiguration:
+          OutputLocation: s3://${self:custom.lake.bucketName}/athena-results/

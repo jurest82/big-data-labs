@@ -2,8 +2,10 @@
   "name": "big-data-labs",
   "private": true,
   "devDependencies": {
+    "@serverless/safeguards-plugin": "^1.2.1",
     "cspell": "^10.3.6",
-    "prettier": "^3.9.9"
+    "prettier": "^3.9.9",
+    "serverless-deployment-bucket": "^1.6.0"
   },
   "scripts": {
     "format": "prettier --write . && yapf -i -r labs/",

@@ -15,6 +15,8 @@ services:
       - path: ../.envs/sls.env
         required: false
     environment:
+      # Prefix of the names of every stack and resource the AWS labs create
+      - DEPLOY_APP=big-data-labs
       # Defaults for psql, so the local PostgreSQL needs no flags
       - PGHOST=postgres
       - PGUSER=postgres

@@ -10,7 +10,7 @@ The first labs (the first weekend) use an online store as their example, with or
 
 Nothing from this project is installed directly on the host. Everything (the `aws` CLI, the `serverless` CLI, Python, formatting and linting) runs inside the Docker containers defined in `.docker/docker-compose.yml`, through the dev container at the repository root.
 
-**Claude never runs deploys, `git push`, `serverless deploy` or `serverless remove`, or any other command that changes state in AWS or in the repository's remote.** Give the command, or a read-only diagnosis (`serverless print`/`package`, `aws ... describe-*`/`get-*`/`list-*`, `cfn-lint`), and let the developer run it.
+**Claude never runs deploys, `git push`, `serverless deploy` or `serverless remove`, or any other command that changes state in AWS or in the repository's remote.** Give the command, or a read-only diagnosis (`serverless print`/`package`, `aws ... describe-*`/`get-*`/`list-*`, `cfn-lint`), and let the developer run it. Read-only Athena queries (`SELECT`, `SHOW`, `DESCRIBE`) through the CLI (`aws athena start-query-execution`, workgroup `big-data-labs`, database `big_data_labs`) are fine too, and are how the expected results of a lab are validated once the developer has deployed it. Creating or dropping tables, `CTAS`, `INSERT`, `UPDATE`, `DELETE` and anything else that writes data are state changes the developer runs.
 
 One lab is built at a time. The developer reviews each lab before the next one starts.
 
@@ -38,19 +38,24 @@ Labs 2 to 4 share one base stack (S3 bucket with zones, a Glue database and an A
 
 - Each lab README follows the same standard as the root `README.md`: a `# README` title with a table of contents, then Summary, Setup (the steps, each with its expected result) and Remove (how to destroy what was deployed), separated by `---`. A Glossary goes only when there is something to define, such as environment variables. A lab README does not say after which slide of the course it is done or which slides it relates to: the presentation points to the lab, not the other way around.
 - Windows compatibility matters: most students use Windows and the maintainer uses macOS. `.gitattributes` forces LF line endings on every text file and `.devcontainer.json` strips any CR from `.docker/*.sh` on creation. Keep both working when adding new file types or scripts (add the extension to `.gitattributes`).
+- The steps of a lab are run together in class, so the README has no per-step questions or exercises and there is no solutions file. SQL files have one statement per block with a comment on top, and the student runs one statement at a time (pgAdmin, the Athena console). In lab 1 every name carries its schema (`lab_01a.flat_orders`), with no `SET search_path`.
+- The expected result of each step comes from a real run, never from memory. When Claude cannot run a step (it writes to AWS), the README does not state a result until the developer has run it and the read-only queries confirm it.
+- Code and YAML carry no comments that justify a design decision or explain what was left out. Those reasons go in this file.
 - Data and schema names are in English (`orders`, `customers`, `products`, `order_items`, `reviews`, `clicks`).
 - Verify every claim about an AWS service against its official documentation before writing it into a lab. Do not answer from memory.
 - Serverless Framework, CLI only, no Serverless Dashboard: no `org:` or `app:` keys in any `serverless.yml`. `SERVERLESS_ACCESS_KEY` in `.envs/sls.env` is only for CLI licensing, and each student uses their own.
 
 ## Serverless stacks
 
-The stacks follow the pattern of the maintainer's undergraduate project: one stack per folder, deployed on its own with `cd <folder> && serverless deploy`.
+There is one stack per folder, deployed on its own with `cd <folder> && serverless deploy`.
 
 - A stack folder has a short `serverless.yml` that includes one CloudFormation file per kind of resource (`s3.yml`, `glue.yml`, `iam.yml`, and so on) plus a `parameters.yml` when other stacks need its values. Shared stacks live in `labs/shared/serverless/<stack>/` and lab stacks in `labs/<NN>-<name>/serverless/<stack>/`.
 - `serverless.yml` header: `frameworkVersion: '^4.43.0'`, `configValidationMode: error`, `region: us-east-1`, `stackName: ${env:DEPLOY_APP}-${self:service}` and its own deployment bucket (plugin `serverless-deployment-bucket`). `@serverless/safeguards-plugin` rules are local (allowed regions and stages, and `no-wild-iam-role-statements` when the stack has IAM roles). `DEPLOY_APP=big-data-labs` is set in `.docker/docker-compose.yml`.
 - Every student deploys to their own AWS account, so the names that must be unique across AWS (S3 buckets, including the deployment bucket) include `${aws:accountId}`. There is no `DEVELOPER` variable and no stage in the names: the only stage is `dev`.
 - A stack shares values with the others through SSM parameters named `/${AWS::StackName}/<Name>` (for example `/big-data-labs-base/LakeBucketName`), which other stacks read with `${ssm:...}` and the README reads with `aws ssm get-parameter`.
 - The lake bucket has encryption and blocks public access, and it has no versioning: with versioning, emptying the bucket before `serverless remove` would leave old versions and delete markers, and CloudFormation could not delete it.
+- `serverless remove` deletes the stack but leaves its deployment bucket behind, empty. The lab READMEs delete it with `aws s3 rb`. Each stack has its own deployment bucket, created by the `serverless-deployment-bucket` plugin with a name that includes the account id. A first deploy can fail with "The serverless deployment bucket ... does not exist" because the plugin has just created the bucket; deploying again fixes it.
+- Serverless Framework: the minimum is `^4.43.0`, the latest release when the labs were built (there is no v5).
 - Validate without deploying: `cfn-lint` on the resource files with their `${self:...}` variables replaced, and `serverless print` once credentials exist.
 
 ## Formatting

@@ -42,6 +42,17 @@ Labs 2 to 4 share one base stack (S3 bucket with zones, a Glue database and an A
 - Verify every claim about an AWS service against its official documentation before writing it into a lab. Do not answer from memory.
 - Serverless Framework, CLI only, no Serverless Dashboard: no `org:` or `app:` keys in any `serverless.yml`. `SERVERLESS_ACCESS_KEY` in `.envs/sls.env` is only for CLI licensing, and each student uses their own.
 
+## Serverless stacks
+
+The stacks follow the pattern of the maintainer's undergraduate project: one stack per folder, deployed on its own with `cd <folder> && serverless deploy`.
+
+- A stack folder has a short `serverless.yml` that includes one CloudFormation file per kind of resource (`s3.yml`, `glue.yml`, `iam.yml`, and so on) plus a `parameters.yml` when other stacks need its values. Shared stacks live in `labs/shared/serverless/<stack>/` and lab stacks in `labs/<NN>-<name>/serverless/<stack>/`.
+- `serverless.yml` header: `frameworkVersion: '^4.43.0'`, `configValidationMode: error`, `region: us-east-1`, `stackName: ${env:DEPLOY_APP}-${self:service}` and its own deployment bucket (plugin `serverless-deployment-bucket`). `@serverless/safeguards-plugin` rules are local (allowed regions and stages, and `no-wild-iam-role-statements` when the stack has IAM roles). `DEPLOY_APP=big-data-labs` is set in `.docker/docker-compose.yml`.
+- Every student deploys to their own AWS account, so the names that must be unique across AWS (S3 buckets, including the deployment bucket) include `${aws:accountId}`. There is no `DEVELOPER` variable and no stage in the names: the only stage is `dev`.
+- A stack shares values with the others through SSM parameters named `/${AWS::StackName}/<Name>` (for example `/big-data-labs-base/LakeBucketName`), which other stacks read with `${ssm:...}` and the README reads with `aws ssm get-parameter`.
+- The lake bucket has encryption and blocks public access, and it has no versioning: with versioning, emptying the bucket before `serverless remove` would leave old versions and delete markers, and CloudFormation could not delete it.
+- Validate without deploying: `cfn-lint` on the resource files with their `${self:...}` variables replaced, and `serverless print` once credentials exist.
+
 ## Formatting
 
 `npm run format` runs Prettier (JSON, YAML, Markdown) and `yapf` (Python, configured in `pyproject.toml`). `npm run format:check` checks without writing. `pylint` uses the same `pyproject.toml`.

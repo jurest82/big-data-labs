@@ -30,7 +30,7 @@ It is built as a teaching project: every lab runs inside Docker, so nothing is i
 | --- | -------------------------------------------------------------- | ---------------- | ----------- |
 | 1A  | OLTP anomalies, normalization and JOINs                        | Local PostgreSQL | Ready       |
 | 1B  | Star schema, a query by category and month, and a data mart    | Local PostgreSQL | Ready       |
-| 2   | Data lake: S3, a Glue crawler and Athena                       | AWS              | Coming soon |
+| 2   | Data lake: S3, a Glue crawler and Athena                       | AWS              | Ready       |
 | 3   | Apache Iceberg table: update, schema evolution and time travel | AWS              | Coming soon |
 | 4   | Medallion layers (bronze, silver, gold) with SQL in Athena     | AWS              | Coming soon |
 | 5   | Streaming click events to S3 with Firehose                     | AWS              | Coming soon |
@@ -75,7 +75,7 @@ Use Docker Desktop with the WSL 2 backend, and clone the repository inside the L
 
 You can deploy `Cloud Formation Stacks` using `Serverless Framework` syntax: <https://www.serverless.com/framework/docs/providers/aws/cli-reference/deploy/>
 
-Each AWS lab keeps its stacks under `labs/<NN>-<name>/serverless/`. Follow the lab's README for the deployment order.
+Each AWS lab keeps its stacks under `labs/<NN>-<name>/serverless/`, and the base stack shared by labs 2 to 4 is in `labs/shared/serverless/base/`. Follow the lab's README for the deployment order. The stacks deploy to `us-east-1`: set `AWS_DEFAULT_REGION=us-east-1` in `.envs/aws.env`.
 
 ### Remove
 

@@ -1,0 +1,25 @@
+Resources:
+  CrawlerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: ${self:custom.servicePrefix}-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: glue.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole
+      Policies:
+        - PolicyName: ReadRawZone
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: s3:GetObject
+                Resource: ${self:custom.lake.bucketArn}/raw/*
+              - Effect: Allow
+                Action: s3:ListBucket
+                Resource: ${self:custom.lake.bucketArn}

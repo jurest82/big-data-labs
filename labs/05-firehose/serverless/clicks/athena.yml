@@ -1,0 +1,14 @@
+Resources:
+  AthenaWorkGroup:
+    Type: AWS::Athena::WorkGroup
+    Properties:
+      Name: ${self:custom.clicks.workgroupName}
+      Description: Queries of the streaming lab
+      State: ENABLED
+      RecursiveDeleteOption: true
+      WorkGroupConfiguration:
+        EnforceWorkGroupConfiguration: true
+        PublishCloudWatchMetricsEnabled: false
+        BytesScannedCutoffPerQuery: 2000000000
+        ResultConfiguration:
+          OutputLocation: s3://${self:custom.clicks.bucketName}/athena-results/

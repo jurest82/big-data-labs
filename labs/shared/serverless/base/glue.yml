@@ -1,0 +1,8 @@
+Resources:
+  GlueDatabase:
+    Type: AWS::Glue::Database
+    Properties:
+      CatalogId: !Ref AWS::AccountId
+      DatabaseInput:
+        Name: ${self:custom.lake.databaseName}
+        Description: Tables of the data lake labs

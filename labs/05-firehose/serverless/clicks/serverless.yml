@@ -1,0 +1,44 @@
+service: lab05-clicks
+frameworkVersion: '^4.43.0'
+configValidationMode: error
+
+provider:
+  name: aws
+  stage: dev
+  region: us-east-1
+  stackName: ${env:DEPLOY_APP}-${self:service}
+  deploymentBucket:
+    name: ${self:provider.region}.cfn.${self:service}.${env:DEPLOY_APP}.${aws:accountId}.deploys
+
+plugins:
+  - serverless-deployment-bucket
+  - '@serverless/safeguards-plugin'
+
+resources:
+  - ${file(s3.yml)}
+  - ${file(glue.yml)}
+  - ${file(athena.yml)}
+  - ${file(iam.yml)}
+  - ${file(firehose.yml)}
+
+custom:
+  safeguards:
+    - safeguard: framework-version
+      enforcementLevel: warning
+      config: ${self:frameworkVersion}
+    - safeguard: allowed-regions
+      enforcementLevel: error
+      config:
+        - ${self:provider.region}
+    - safeguard: no-wild-iam-role-statements
+      enforcementLevel: warning
+    - safeguard: allowed-stages
+      enforcementLevel: error
+      config:
+        - dev
+  servicePrefix: ${env:DEPLOY_APP}-${self:service}
+  clicks:
+    bucketName: ${env:DEPLOY_APP}-clicks-${aws:accountId}
+    databaseName: big_data_labs_clicks
+    workgroupName: ${env:DEPLOY_APP}-clicks
+    streamName: ${env:DEPLOY_APP}-clicks

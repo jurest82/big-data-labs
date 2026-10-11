@@ -1,0 +1,41 @@
+service: lab02-crawler
+frameworkVersion: '^4.43.0'
+configValidationMode: error
+
+provider:
+  name: aws
+  stage: dev
+  region: us-east-1
+  stackName: ${env:DEPLOY_APP}-${self:service}
+  deploymentBucket:
+    name: ${self:provider.region}.cfn.${self:service}.${env:DEPLOY_APP}.${aws:accountId}.deploys
+
+plugins:
+  - serverless-deployment-bucket
+  - '@serverless/safeguards-plugin'
+
+resources:
+  - ${file(iam.yml)}
+  - ${file(crawler.yml)}
+
+custom:
+  safeguards:
+    - safeguard: framework-version
+      enforcementLevel: warning
+      config: ${self:frameworkVersion}
+    - safeguard: allowed-regions
+      enforcementLevel: error
+      config:
+        - ${self:provider.region}
+    - safeguard: no-wild-iam-role-statements
+      enforcementLevel: warning
+    - safeguard: allowed-stages
+      enforcementLevel: error
+      config:
+        - dev
+  servicePrefix: ${env:DEPLOY_APP}-${self:service}
+  # Values published by the base stack (labs/shared/serverless/base)
+  lake:
+    bucketName: ${ssm:/${env:DEPLOY_APP}-base/LakeBucketName}
+    bucketArn: ${ssm:/${env:DEPLOY_APP}-base/LakeBucketArn}
+    databaseName: ${ssm:/${env:DEPLOY_APP}-base/GlueDatabaseName}

@@ -1,0 +1,67 @@
+services:
+  big-data-labs:
+    container_name: 'BigDataLabs'
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: img-labs
+    volumes:
+      - ..:/app
+      - big-data-labs-bashhistory:/commandhistory
+    # Credentials are optional: lab 1 runs entirely on the local services below
+    env_file:
+      - path: ../.envs/aws.env
+        required: false
+      - path: ../.envs/sls.env
+        required: false
+    environment:
+      # Prefix of the names of every stack and resource the AWS labs create
+      - DEPLOY_APP=big-data-labs
+      # Defaults for psql, so the local PostgreSQL needs no flags
+      - PGHOST=postgres
+      - PGUSER=postgres
+      - PGPASSWORD=example
+      - PGDATABASE=shop
+    working_dir: /app
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    command:
+      - /bin/sh
+      - -c
+      - sleep infinity
+
+  postgres:
+    container_name: 'BigDataLabsPostgres'
+    image: postgres:18
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=example
+      - POSTGRES_DB=shop
+    ports:
+      - '127.0.0.1:5432:5432'
+    volumes:
+      - big-data-labs-postgres:/var/lib/postgresql
+    restart: unless-stopped
+
+  pgadmin:
+    container_name: 'BigDataLabsPgAdmin'
+    image: dpage/pgadmin4:latest
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@example.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+      - PGADMIN_CONFIG_SERVER_MODE=False
+      - PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED=False
+    ports:
+      - '127.0.0.1:5050:80'
+    volumes:
+      - ./pgadmin-servers.json:/pgadmin4/servers.json:ro
+      - big-data-labs-pgadmin:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+volumes:
+  big-data-labs-bashhistory:
+  big-data-labs-postgres:
+  big-data-labs-pgadmin:

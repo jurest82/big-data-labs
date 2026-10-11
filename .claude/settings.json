@@ -1,0 +1,46 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git branch)",
+      "Bash(git branch -a)",
+      "Bash(git branch -av)",
+      "Bash(git branch -v)",
+      "Bash(git branch --list*)",
+      "Bash(git check-ignore*)",
+      "Bash(git diff*)",
+      "Bash(git fetch*)",
+      "Bash(git log*)",
+      "Bash(git show*)",
+      "Bash(git status*)",
+
+      "Bash(docker compose -f .docker/docker-compose.yml config*)",
+
+      "Bash(docker exec -w /app/labs/* BigDataLabs serverless info*)",
+      "Bash(docker exec -w /app/labs/* BigDataLabs serverless package*)",
+      "Bash(docker exec -w /app/labs/* BigDataLabs serverless print*)",
+
+      "Bash(docker exec BigDataLabs aws * describe-*)",
+      "Bash(docker exec BigDataLabs aws * get-*)",
+      "Bash(docker exec BigDataLabs aws * list-*)",
+      "Bash(docker exec -w * BigDataLabs aws * describe-*)",
+      "Bash(docker exec -w * BigDataLabs aws * get-*)",
+      "Bash(docker exec -w * BigDataLabs aws * list-*)",
+
+      "Bash(docker exec BigDataLabs cfn-lint*)",
+      "Bash(docker exec -w * BigDataLabs cfn-lint*)",
+      "Bash(docker exec BigDataLabs pylint*)",
+      "Bash(docker exec -w * BigDataLabs pylint*)",
+      "Bash(docker exec BigDataLabs yapf*)",
+      "Bash(docker exec -w * BigDataLabs yapf*)",
+      "Bash(docker exec -w /app BigDataLabs npm run format)",
+      "Bash(docker exec -w /app BigDataLabs npm run format:check)",
+
+      "Bash(docker exec -w * BigDataLabs find*)",
+      "Bash(docker restart *)",
+
+      "WebFetch(domain:www.serverless.com)",
+      "WebFetch(domain:aws.amazon.com)",
+      "WebFetch(domain:docs.aws.amazon.com)"
+    ]
+  }
+}

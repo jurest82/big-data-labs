@@ -1,0 +1,65 @@
+{
+  "name": "big-data-labs",
+  "dockerComposeFile": ".docker/docker-compose.yml",
+  "service": "big-data-labs",
+  "workspaceFolder": "/app",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "aaron-bond.better-comments",
+        "davidanson.vscode-markdownlint",
+        "eamodio.gitlens",
+        "eeyore.yapf",
+        "esbenp.prettier-vscode",
+        "GrapeCity.gc-excelviewer",
+        "irongeek.vscode-env",
+        "mikestead.dotenv",
+        "ms-azuretools.vscode-docker",
+        "ms-python.pylint",
+        "ms-python.python",
+        "streetsidesoftware.code-spell-checker",
+        "threadheap.serverless-ide-vscode",
+        "yzhang.markdown-all-in-one"
+      ],
+      "settings": {
+        "editor.codeActionsOnSave": {
+          "source.fixAll.markdownlint": "explicit",
+          "source.organizeImports": "explicit"
+        },
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnPaste": true,
+        "editor.formatOnSave": true,
+        "editor.insertSpaces": true,
+        "files.eol": "\n",
+        "editor.tabSize": 2,
+        "git.autoRepositoryDetection": true,
+        "json.format.enable": true,
+        "[markdown]": {
+          "editor.formatOnSave": true,
+          "editor.formatOnPaste": true,
+          "editor.defaultFormatter": "davidanson.vscode-markdownlint"
+        },
+        "python.analysis.typeCheckingMode": "basic",
+        "python.formatting.provider": "none",
+        "python.pythonPath": "/usr/local/bin/python3",
+        "[python]": {
+          "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit"
+          },
+          "editor.formatOnSaveMode": "file",
+          "editor.formatOnSave": true,
+          "editor.defaultFormatter": "eeyore.yapf"
+        },
+        "serverlessIDE.cfnLint.path": "/usr/local/bin/cfn-lint",
+        "serverlessIDE.cfnLint.appendRules": ["cfn_lint_serverless.rules"],
+        "serverlessIDE.completion": true,
+        "serverlessIDE.hover": true,
+        "serverlessIDE.telemetry.enableTelemetry": false,
+        "serverlessIDE.validate": true,
+        "serverlessIDE.validationProvider": "cfn-lint",
+        "yapf.interpreter": ["/usr/local/bin/python3"]
+      }
+    }
+  },
+  "postCreateCommand": "sed -i 's/\\r$//' .docker/*.sh && sudo chmod +x .docker/*.sh && .docker/entrypoint.sh"
+}

@@ -1,0 +1,18 @@
+[tool.yapf]
+based_on_style = "pep8"
+force_multiline_dict = true
+indent_dictionary_value = true
+column_limit = 80
+spaces_before_comment = 2
+split_before_logical_operator = false
+split_complex_comprehension = true
+
+[tool.pylint]
+max-line-length = 80
+disable = [
+    "C0111",  # missing-docstring
+    "W0703"   # broad-except
+]
+enable = [
+    "W0611"   # unused-import
+]

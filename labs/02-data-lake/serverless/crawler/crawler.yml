@@ -1,0 +1,16 @@
+Resources:
+  RawZoneCrawler:
+    Type: AWS::Glue::Crawler
+    Properties:
+      Name: ${self:custom.servicePrefix}
+      Description: Creates the tables of the raw zone, one per folder
+      Role: !GetAtt CrawlerRole.Arn
+      DatabaseName: ${self:custom.lake.databaseName}
+      # One include path per table: each folder becomes one table
+      Targets:
+        S3Targets:
+          - Path: s3://${self:custom.lake.bucketName}/raw/orders/
+          - Path: s3://${self:custom.lake.bucketName}/raw/reviews/
+      SchemaChangePolicy:
+        UpdateBehavior: UPDATE_IN_DATABASE
+        DeleteBehavior: DEPRECATE_IN_DATABASE

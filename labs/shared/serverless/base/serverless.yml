@@ -1,0 +1,41 @@
+service: base
+frameworkVersion: '^4.43.0'
+configValidationMode: error
+
+provider:
+  name: aws
+  stage: dev
+  region: us-east-1
+  stackName: ${env:DEPLOY_APP}-${self:service}
+  deploymentBucket:
+    name: ${self:provider.region}.cfn.${self:service}.${env:DEPLOY_APP}.${aws:accountId}.deploys
+
+plugins:
+  - serverless-deployment-bucket
+  - '@serverless/safeguards-plugin'
+
+resources:
+  - ${file(s3.yml)}
+  - ${file(glue.yml)}
+  - ${file(athena.yml)}
+  - ${file(parameters.yml)}
+
+custom:
+  safeguards:
+    - safeguard: framework-version
+      enforcementLevel: warning
+      config: ${self:frameworkVersion}
+    - safeguard: allowed-regions
+      enforcementLevel: error
+      config:
+        - ${self:provider.region}
+    - safeguard: allowed-stages
+      enforcementLevel: error
+      config:
+        - dev
+  servicePrefix: ${env:DEPLOY_APP}-${self:service}
+  lake:
+    # The account id makes the name unique across AWS accounts
+    bucketName: ${env:DEPLOY_APP}-lake-${aws:accountId}
+    databaseName: big_data_labs
+    workgroupName: ${env:DEPLOY_APP}

@@ -84,3 +84,7 @@ Each line of the message is a bullet `* <type>: <description>` (with a literal `
 When a commit touches several things, reflect each one in its own bullet. If the changes are very different in nature, prefer several separate commits.
 
 **Never add Claude co-authorship to commits in this repository.**
+
+## Changelog convention
+
+`CHANGELOG.md` follows Keep a Changelog, with dates as `dd/mm/yyyy`. It lists the final state of each release under `### Added`, `### Changed`, `### Fixed` or `### Removed`, and not the fixes made along the way before something shipped. An `## [Unreleased]` heading goes above the latest release only when there is something in it. Update it in the same change that adds a lab or a feature, and before merging `init` into `develop`.

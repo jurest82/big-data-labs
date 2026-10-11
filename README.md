@@ -37,10 +37,23 @@ It is built as a teaching project: every lab runs inside Docker, so nothing is i
 
 Labs 1 to 4 work with the free plan of your AWS account. Lab 5, and the labs after it, need the paid plan, and its README explains how to upgrade. Labs 2 to 4 share one base stack (an S3 bucket with zones, a Glue database and an Athena workgroup), deployed once. Lab 5 has its own stack. Each lab has its own README with its steps and how to remove what it created. Labs 2 to 4 remove the base stack together, at the end of lab 4.
 
+| Lab 1A: normalization                                                                                                          | Lab 1B: star schema                                                                                                   |
+| ------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------- |
+| <a href="labs/01a-oltp-normalization/"><img src="docs/lab01a_normalization_small.png" alt="Lab 1A data model" width="400"></a> | <a href="labs/01b-star-schema/"><img src="docs/lab01b_star_schema_small.png" alt="Lab 1B data model" width="400"></a> |
+
+| Lab 2: data lake                                                                                                 | Lab 3: Iceberg                                                                                               |
+| ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| <a href="labs/02-data-lake/"><img src="docs/lab02_data_lake_small.png" alt="Lab 2 architecture" width="400"></a> | <a href="labs/03-iceberg/"><img src="docs/lab03_iceberg_small.png" alt="Lab 3 architecture" width="400"></a> |
+
+| Lab 4: medallion layers                                                                                          | Lab 5: Firehose                                                                                                |
+| ---------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| <a href="labs/04-medallion/"><img src="docs/lab04_medallion_small.png" alt="Lab 4 architecture" width="400"></a> | <a href="labs/05-firehose/"><img src="docs/lab05_firehose_small.png" alt="Lab 5 architecture" width="400"></a> |
+
 ### Repository structure
 
 - **`.docker/`**: the multi-stage `Dockerfile`, `docker-compose.yml` (the development container, PostgreSQL and pgAdmin) and the scripts the container runs when it is created.
 - **`.envs/`**: your credentials, git-ignored. The `*.example` files show which variables you need.
+- **`docs/`**: the diagram of each lab (the data model of labs 1A and 1B, the architecture of the AWS labs), in a full and a small size, generated from `docs/architecture.py` with `python3 docs/architecture.py`.
 - **`labs/`**: one folder per lab, `labs/<NN>-<name>/`. Code shared by several labs, such as the data generator, lives in `labs/shared/`.
 
 ---

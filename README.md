@@ -22,7 +22,7 @@
 
 `Big Data Labs` is the set of hands-on labs of **SI7006 Storage and Processing of Big Data** (EAFIT, master's program in Data Science and Analytics). The labs follow the course presentations. The first ones use an online store as their example, with orders, customers, products, reviews, product photos and click events. Later labs may use a different context.
 
-It is built as a teaching project: every lab runs inside Docker, so nothing is installed on your computer except Docker and an editor. The labs that use AWS deploy to your own AWS account with Serverless Framework, and each one ends with a step that destroys everything it created.
+It is built as a teaching project: every lab runs inside Docker, so nothing is installed on your computer except Docker and an editor. The labs that use AWS deploy to your own AWS account with Serverless Framework, and their READMEs end with the steps that remove everything they created.
 
 ### The labs
 
@@ -35,7 +35,7 @@ It is built as a teaching project: every lab runs inside Docker, so nothing is i
 | 4   | Medallion layers (bronze, silver, gold) with SQL in Athena     | AWS              | Ready       |
 | 5   | Streaming click events to S3 with Firehose                     | AWS              | Ready       |
 
-Labs 1 to 4 work with the free plan of your AWS account. Lab 5, and the labs after it, need the paid plan, and its README explains how to upgrade. Labs 2 to 4 share one base stack (an S3 bucket with zones, a Glue database and an Athena workgroup), deployed once. Lab 5 has its own stack. Each lab has its own README with the statement, the steps and how to remove what it created.
+Labs 1 to 4 work with the free plan of your AWS account. Lab 5, and the labs after it, need the paid plan, and its README explains how to upgrade. Labs 2 to 4 share one base stack (an S3 bucket with zones, a Glue database and an Athena workgroup), deployed once. Lab 5 has its own stack. Each lab has its own README with its steps and how to remove what it created. Labs 2 to 4 remove the base stack together, at the end of lab 4.
 
 ### Repository structure
 
@@ -49,9 +49,9 @@ Labs 1 to 4 work with the free plan of your AWS account. Lab 5, and the labs aft
 
 ### Development container
 
-This steps are tailored to work with Visual Studio Code, but you are free to choose a different IDE and make necessary adjustments to the setup.
+These steps are tailored to work with Visual Studio Code, but you are free to choose a different IDE and make necessary adjustments to the setup.
 
-1. Install `ms-vscode-remote.remote-containers` extension. If you don't know how to do that follow this steps: <https://code.visualstudio.com/docs/editor/extension-gallery#_install-an-extension>
+1. Install `ms-vscode-remote.remote-containers` extension. If you don't know how to do that follow these steps: <https://code.visualstudio.com/docs/editor/extension-gallery#_install-an-extension>
 2. Open this project's folder in Visual Studio Code. The extension will detect a container configuration and will ask you if you want to reopen the project in the container. Accept. The first time, Docker builds the image, which takes a few minutes.
 
 ### Environment variables
@@ -75,7 +75,7 @@ Use Docker Desktop with the WSL 2 backend, and clone the repository inside the L
 
 You can deploy `Cloud Formation Stacks` using `Serverless Framework` syntax: <https://www.serverless.com/framework/docs/providers/aws/cli-reference/deploy/>
 
-Each AWS lab keeps its stacks under `labs/<NN>-<name>/serverless/`, and the base stack shared by labs 2 to 4 is in `labs/shared/serverless/base/`. Follow the lab's README for the deployment order. The stacks deploy to `us-east-1`: set `AWS_DEFAULT_REGION=us-east-1` in `.envs/aws.env`.
+The labs that deploy their own stacks keep them under `labs/<NN>-<name>/serverless/`, and the base stack shared by labs 2 to 4 is in `labs/shared/serverless/base/`. Follow the lab's README for the deployment order. The stacks deploy to `us-east-1`: set `AWS_DEFAULT_REGION=us-east-1` in `.envs/aws.env`.
 
 ### Remove
 
@@ -85,7 +85,7 @@ If `remove` command fails for whatever reason, you'll need to investigate the re
 
 You can, alternatively, delete the `AWS Cloud Formation` stack manually using `AWS Console` at your browser. But it's recommended to do it using the `remove` command from Serverless Framework.
 
-`Cloud Formation` cannot delete an S3 bucket that still has objects. The lab READMEs include the step that empties the bucket before you remove its stack.
+`Cloud Formation` cannot delete an S3 bucket that still has objects. The lab READMEs include the step that empties the bucket before you remove its stack. `serverless remove` also leaves each stack's deployment bucket behind, empty, so the lab READMEs delete it with `aws s3 rb`.
 
 ---
 

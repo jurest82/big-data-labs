@@ -20,6 +20,8 @@
 
 It uses the base stack of lab 2 and deploys nothing new.
 
+<img src="../../docs/lab03_iceberg.png" alt="Lab 3: an Iceberg table in Athena" width="720">
+
 ---
 
 ## Setup

@@ -20,6 +20,8 @@
 
 It runs on the local PostgreSQL service and creates nothing in AWS. It does not depend on lab 1A: step 1 creates its own copy of the transactional tables.
 
+<img src="../../docs/lab01b_star_schema.png" alt="Lab 1B: a star schema and a data mart" width="720">
+
 ---
 
 ## Setup

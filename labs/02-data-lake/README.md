@@ -21,6 +21,8 @@
 
 The base stack you deploy in step 1 (an S3 bucket, a Glue database and an Athena workgroup) is also used by labs 3 and 4.
 
+<img src="../../docs/lab02_data_lake.png" alt="Lab 2: S3, a Glue crawler and Athena" width="720">
+
 ---
 
 ## Setup

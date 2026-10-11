@@ -20,6 +20,8 @@
 
 It uses the base stack of lab 2 and deploys nothing new. In the bucket, `raw/` is the bronze layer, and the lab adds the folders `silver/` and `gold/`.
 
+<img src="../../docs/lab04_medallion.png" alt="Lab 4: bronze, silver and gold layers in S3" width="720">
+
 ---
 
 ## Setup

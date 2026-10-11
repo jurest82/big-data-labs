@@ -8,8 +8,8 @@
     "serverless-deployment-bucket": "^1.6.0"
   },
   "scripts": {
-    "format": "prettier --write . && yapf -i -r labs/",
-    "format:check": "prettier --check . && yapf --diff -r labs/",
+    "format": "prettier --write . && yapf -i -r labs/ docs/",
+    "format:check": "prettier --check . && yapf --diff -r labs/ docs/",
     "spell": "cspell --no-progress"
   }
 }

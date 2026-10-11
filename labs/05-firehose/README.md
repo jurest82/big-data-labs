@@ -20,6 +20,8 @@
 
 It has its own stack, with its own bucket, Glue database and Athena workgroup, and does not need the stacks of the other labs.
 
+<img src="../../docs/lab05_firehose.png" alt="Lab 5: Firehose delivers click events to S3" width="720">
+
 ---
 
 ## Setup

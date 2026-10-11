@@ -21,6 +21,8 @@
 
 It runs on the local PostgreSQL service and creates nothing in AWS.
 
+<img src="../../docs/lab01a_normalization.png" alt="Lab 1A: from one flat table to four tables" width="720">
+
 ---
 
 ## Setup

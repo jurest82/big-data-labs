@@ -19,6 +19,7 @@
     "calle",
     "carrera",
     "commandhistory",
+    "datehour",
     "dockerized",
     "dpage",
     "eafit",
@@ -28,9 +29,11 @@
     "iend",
     "ihdr",
     "iibbbbb",
+    "jsonserde",
     "lakehouse",
     "medallion",
     "medellín",
+    "openx",
     "pereira",
     "pgadmin",
     "pgdatabase",
@@ -46,6 +49,8 @@
     "serdeproperties",
     "sofía",
     "tblproperties",
+    "timespec",
+    "trunc",
     "yapf"
   ]
 }

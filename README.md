@@ -33,9 +33,9 @@ It is built as a teaching project: every lab runs inside Docker, so nothing is i
 | 2   | Data lake: S3, a Glue crawler and Athena                       | AWS              | Ready       |
 | 3   | Apache Iceberg table: update, schema evolution and time travel | AWS              | Ready       |
 | 4   | Medallion layers (bronze, silver, gold) with SQL in Athena     | AWS              | Ready       |
-| 5   | Streaming click events to S3 with Firehose                     | AWS              | Coming soon |
+| 5   | Streaming click events to S3 with Firehose                     | AWS              | Ready       |
 
-Labs 2 to 4 share one base stack (an S3 bucket with zones, a Glue database and an Athena workgroup), deployed once. Lab 5 has its own stack. Each lab has its own README with the statement, the steps and how to remove what it created.
+Labs 1 to 4 work with the free plan of your AWS account. Lab 5, and the labs after it, need the paid plan, and its README explains how to upgrade. Labs 2 to 4 share one base stack (an S3 bucket with zones, a Glue database and an Athena workgroup), deployed once. Lab 5 has its own stack. Each lab has its own README with the statement, the steps and how to remove what it created.
 
 ### Repository structure
 

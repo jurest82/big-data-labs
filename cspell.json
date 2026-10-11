@@ -42,7 +42,10 @@
     "pylint",
     "pyproject",
     "pérez",
+    "serde",
+    "serdeproperties",
     "sofía",
+    "tblproperties",
     "yapf"
   ]
 }

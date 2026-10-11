@@ -9,6 +9,11 @@ It writes three kinds of files, one folder each:
 It also writes swamp/orders_branch_b.csv, a file of orders with other column
 names, used to show what happens to a lake without rules.
 
+It also writes orders_october/orders-2026-10.csv, a batch of orders with the
+defects of real data (duplicated lines, invalid dates, invalid quantities,
+amounts that do not match, and missing customers), used to build the layers of
+a medallion architecture.
+
 The data is deterministic: the same seed produces the same files.
 """
 import argparse
@@ -26,6 +31,9 @@ from faker import Faker
 DEFAULT_OUTPUT = Path(__file__).resolve().parents[1] / 'output'
 FIRST_ORDER_ID = 10000
 FIRST_CUSTOMER_ID = 101
+OCTOBER_FIRST_ORDER_ID = 210000
+OCTOBER_START = date(2026, 10, 1)
+OCTOBER_END = date(2026, 10, 31)
 START_DATE = date(2026, 7, 1)
 END_DATE = date(2026, 9, 30)
 
@@ -90,6 +98,15 @@ COMMENTS = {
 TAGS = ['shipping', 'packaging', 'price', 'quality', 'size', 'support']
 RATING_WEIGHTS = [5, 8, 17, 35, 35]
 LINES_PER_ORDER_WEIGHTS = [45, 30, 18, 7]
+
+# The share of the lines of the October batch that have each defect.
+DEFECT_RATES = {
+    'duplicate': 0.03,
+    'invalid_date': 0.01,
+    'invalid_quantity': 0.01,
+    'amount_mismatch': 0.02,
+    'missing_customer': 0.02,
+}
 
 
 def random_date(rng, first, last):
@@ -281,6 +298,61 @@ def write_swamp(rng, customers, folder, count):
     return count
 
 
+def pick_defect(rng):
+    """Return the defect of a line, or None when the line is clean."""
+    roll = rng.random()
+    threshold = 0.0
+    for name, rate in DEFECT_RATES.items():
+        threshold += rate
+        if roll < threshold:
+            return name
+    return None
+
+
+def apply_defect(rng, row, defect):
+    """Return a copy of a CSV row of orders with a defect."""
+    row = list(row)
+    column = ORDER_COLUMNS.index
+    if defect == 'invalid_date':
+        row[column('order_date')] = rng.choice(['', '2026-10-32', '31/10/2026'])
+    elif defect == 'invalid_quantity':
+        quantity = rng.choice([0, -1, -2])
+        row[column('quantity')] = quantity
+        row[column('amount')] = quantity * int(row[column('unit_price')])
+    elif defect == 'amount_mismatch':
+        row[column('amount')] += rng.choice([-1000, 1000, 5000])
+    elif defect == 'missing_customer':
+        row[column('customer_id')] = ''
+    return row
+
+
+def write_october_batch(rng, customers, folder, count):
+    """Write a batch of orders with defects and return its counts."""
+    folder.mkdir(parents=True, exist_ok=True)
+    counts = dict.fromkeys(DEFECT_RATES, 0)
+    counts.update(orders=count, lines=0)
+    with open(folder / 'orders-2026-10.csv', 'w', newline='',
+              encoding='utf-8') as handle:
+        writer = csv.writer(handle)
+        writer.writerow(ORDER_COLUMNS)
+        for index in range(count):
+            order = (OCTOBER_FIRST_ORDER_ID + index,
+                     random_date(rng, OCTOBER_START,
+                                 OCTOBER_END), rng.choice(customers),
+                     make_order_lines(rng, OCTOBER_FIRST_ORDER_ID + index))
+            for row in order_rows(order):
+                defect = pick_defect(rng)
+                writer.writerow(
+                    apply_defect(rng, row, defect) if defect else row)
+                counts['lines'] += 1
+                if defect:
+                    counts[defect] += 1
+                if defect == 'duplicate':
+                    writer.writerow(row)
+                    counts['lines'] += 1
+    return counts
+
+
 def parse_args():
     parser = argparse.ArgumentParser(
         description=__doc__.split('\n', maxsplit=1)[0])
@@ -288,6 +360,7 @@ def parse_args():
     parser.add_argument('--reviews', type=int, default=50000)
     parser.add_argument('--customers', type=int, default=5000)
     parser.add_argument('--swamp-rows', type=int, default=2000)
+    parser.add_argument('--october-orders', type=int, default=50000)
     parser.add_argument('--seed', type=int, default=42)
     parser.add_argument('--output', type=Path, default=DEFAULT_OUTPUT)
     return parser.parse_args()
@@ -306,6 +379,12 @@ def main():
     print(f'reviews: {reviews} reviews')
     print(f'photos:  {photos} images')
     print(f'swamp:   {swamp} rows')
+    october = write_october_batch(rng, customers,
+                                  args.output / 'orders_october',
+                                  args.october_orders)
+    print(f"october: {october['orders']} orders, {october['lines']} lines")
+    for defect in DEFECT_RATES:
+        print(f'         {defect}: {october[defect]}')
     print(f'Files written to {args.output}')
 
 

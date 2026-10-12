@@ -236,6 +236,32 @@ def lab06(kit):
         notebook >> kit.branch(label=kit.note("runs the code")) >> spark
 
 
+def lab07(kit):
+    with kit.diagram("Lab 7 - Parquet and partitioning with Spark", "Lab 7",
+                     "lab07_parquet_partitioning"):
+        # Declared first so it ranks above the chain, away from the labels.
+        notebook = Python(kit.pick("Notebook\nspark_parquet.ipynb", "Notebook"),
+                          height=kit.height,
+                          labelloc="t")
+        csv_files = Storage(kit.pick("Your computer\n9 CSV files, 878 MiB",
+                                     "CSV files"),
+                            height=kit.height)
+        spark = Spark(kit.pick("Spark\nlocal[*], 10 cores", "Spark"),
+                      height=kit.height)
+        parquet = Storage(kit.pick(
+            "Your computer\nParquet: flat, by month,\nby day, 4 codecs",
+            "Parquet files"),
+                          height=kit.height)
+        web_ui = Client(kit.pick("Web UI\nlocalhost:4040", "Web UI"),
+                        height=kit.height)
+
+        csv_files >> kit.flow(label=kit.note("reads")) >> spark
+        spark >> kit.flow(label=kit.note("writes")) >> parquet
+        spark >> kit.flow(
+            label=kit.note("files and bytes\nread by each query")) >> web_ui
+        notebook >> kit.branch(label=kit.note("runs the code")) >> spark
+
+
 BLUE = "#336791"
 AMBER = "#b45309"
 TEAL = "#0f766e"
@@ -451,5 +477,5 @@ def lab01b(kit):
 
 for is_small in (False, True):
     lab_kit = Kit(is_small)
-    for lab in (lab01a, lab01b, lab02, lab03, lab04, lab05, lab06):
+    for lab in (lab01a, lab01b, lab02, lab03, lab04, lab05, lab06, lab07):
         lab(lab_kit)

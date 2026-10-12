@@ -35,8 +35,9 @@ It is built as a teaching project: every lab runs inside Docker, so nothing is i
 | 4   | Medallion layers (bronze, silver, gold) with SQL in Athena     | AWS              | Ready  |
 | 5   | Streaming click events to S3 with Firehose                     | AWS              | Ready  |
 | 6   | Apache Spark on your computer, with the flights of an airline  | Local Spark      | Ready  |
+| 7   | Parquet files, partitioning and compression with Spark         | Local Spark      | Ready  |
 
-Labs 1 and 6 run only on your computer. Labs 2 to 4 work with the free plan of your AWS account. Lab 5, and the labs after it, need the paid plan, and its README explains how to upgrade. Labs 2 to 4 share one base stack (an S3 bucket with zones, a Glue database and an Athena workgroup), deployed once. Lab 5 has its own stack. Each lab has its own README with its steps and how to remove what it created. Labs 2 to 4 remove the base stack together, at the end of lab 4.
+Labs 1, 6 and 7 run only on your computer. Labs 2 to 4 work with the free plan of your AWS account. Lab 5, and the labs after it, need the paid plan, and its README explains how to upgrade. Labs 2 to 4 share one base stack (an S3 bucket with zones, a Glue database and an Athena workgroup), deployed once. Lab 5 has its own stack. Each lab has its own README with its steps and how to remove what it created. Labs 2 to 4 remove the base stack together, at the end of lab 4.
 
 | Lab 1A: normalization                                                                                                          | Lab 1B: star schema                                                                                                   |
 | ------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------- |
@@ -50,9 +51,9 @@ Labs 1 and 6 run only on your computer. Labs 2 to 4 work with the free plan of y
 | ---------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
 | <a href="labs/04-medallion/"><img src="docs/lab04_medallion_small.png" alt="Lab 4 architecture" width="400"></a> | <a href="labs/05-firehose/"><img src="docs/lab05_firehose_small.png" alt="Lab 5 architecture" width="400"></a> |
 
-| Lab 6: Spark on your computer                                                                                 |
-| ------------------------------------------------------------------------------------------------------------- |
-| <a href="labs/06-spark-local/"><img src="docs/lab06_spark_local_small.png" alt="Lab 6 setup" width="400"></a> |
+| Lab 6: Spark on your computer                                                                                 | Lab 7: Parquet and partitioning                                                                                                 |
+| ------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| <a href="labs/06-spark-local/"><img src="docs/lab06_spark_local_small.png" alt="Lab 6 setup" width="400"></a> | <a href="labs/07-parquet-partitioning/"><img src="docs/lab07_parquet_partitioning_small.png" alt="Lab 7 setup" width="400"></a> |
 
 ### Repository structure
 
@@ -82,7 +83,7 @@ The development container starts two more services, and publishes the web UI of 
 
 - **PostgreSQL**: `localhost:5432`, user `postgres`, password `example`, database `shop`. Inside the development container, `psql` already points to it, so you can run `psql` with no flags.
 - **pgAdmin**: <http://localhost:5050>. The server is already registered; the first time you connect, it asks for the password: `example`.
-- **Spark web UI**: <http://localhost:4040>. It answers only while a Spark session of lab 6 is open.
+- **Spark web UI**: <http://localhost:4040>. It answers only while a Spark session of lab 6 or 7 is open.
 
 ### Windows
 

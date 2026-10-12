@@ -13,6 +13,7 @@
         "esbenp.prettier-vscode",
         "GrapeCity.gc-excelviewer",
         "irongeek.vscode-env",
+        "ms-toolsai.jupyter",
         "mikestead.dotenv",
         "ms-azuretools.vscode-docker",
         "ms-python.pylint",

@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Flights data generator (`labs/shared/generator/generate_flights.py`) with tests: deterministic flights of an airline in nine monthly CSV files (10 million by default), plus airports, airlines and aircraft
+- Lab 6: Apache Spark on your computer, with its diagram in `docs/`, a notebook with the flights that shows lazy evaluation, partitions, stages and the shuffle in the web UI of Spark, Spark SQL, a broadcast join, a window function and a comparison with pandas
+- Development container: Java 17, PySpark, pandas, pyarrow and the Jupyter kernel in the image, the Jupyter extension for Visual Studio Code, and port 4040 for the web UI of Spark
+
 ## [1.0.0] - 11/10/2026
 
 ### Added

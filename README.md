@@ -34,8 +34,9 @@ It is built as a teaching project: every lab runs inside Docker, so nothing is i
 | 3   | Apache Iceberg table: update, schema evolution and time travel | AWS              | Ready  |
 | 4   | Medallion layers (bronze, silver, gold) with SQL in Athena     | AWS              | Ready  |
 | 5   | Streaming click events to S3 with Firehose                     | AWS              | Ready  |
+| 6   | Apache Spark on your computer, with the flights of an airline  | Local Spark      | Ready  |
 
-Labs 1 to 4 work with the free plan of your AWS account. Lab 5, and the labs after it, need the paid plan, and its README explains how to upgrade. Labs 2 to 4 share one base stack (an S3 bucket with zones, a Glue database and an Athena workgroup), deployed once. Lab 5 has its own stack. Each lab has its own README with its steps and how to remove what it created. Labs 2 to 4 remove the base stack together, at the end of lab 4.
+Labs 1 and 6 run only on your computer. Labs 2 to 4 work with the free plan of your AWS account. Lab 5, and the labs after it, need the paid plan, and its README explains how to upgrade. Labs 2 to 4 share one base stack (an S3 bucket with zones, a Glue database and an Athena workgroup), deployed once. Lab 5 has its own stack. Each lab has its own README with its steps and how to remove what it created. Labs 2 to 4 remove the base stack together, at the end of lab 4.
 
 | Lab 1A: normalization                                                                                                          | Lab 1B: star schema                                                                                                   |
 | ------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------- |
@@ -48,6 +49,10 @@ Labs 1 to 4 work with the free plan of your AWS account. Lab 5, and the labs aft
 | Lab 4: medallion layers                                                                                          | Lab 5: Firehose                                                                                                |
 | ---------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
 | <a href="labs/04-medallion/"><img src="docs/lab04_medallion_small.png" alt="Lab 4 architecture" width="400"></a> | <a href="labs/05-firehose/"><img src="docs/lab05_firehose_small.png" alt="Lab 5 architecture" width="400"></a> |
+
+| Lab 6: Spark on your computer                                                                                 |
+| ------------------------------------------------------------------------------------------------------------- |
+| <a href="labs/06-spark-local/"><img src="docs/lab06_spark_local_small.png" alt="Lab 6 setup" width="400"></a> |
 
 ### Repository structure
 
@@ -73,10 +78,11 @@ At `.envs` folder, copy `aws.env.example` to `aws.env` and `sls.env.example` to 
 
 ### Local services
 
-The development container starts two more services:
+The development container starts two more services, and publishes the web UI of Spark:
 
 - **PostgreSQL**: `localhost:5432`, user `postgres`, password `example`, database `shop`. Inside the development container, `psql` already points to it, so you can run `psql` with no flags.
 - **pgAdmin**: <http://localhost:5050>. The server is already registered; the first time you connect, it asks for the password: `example`.
+- **Spark web UI**: <http://localhost:4040>. It answers only while a Spark session of lab 6 is open.
 
 ### Windows
 

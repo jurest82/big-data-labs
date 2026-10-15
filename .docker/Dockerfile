@@ -78,6 +78,6 @@ RUN pip3 install diagrams
 RUN apt-get install -y openjdk-17-jre-headless \
     && ln -s "$(dirname "$(dirname "$(readlink -f "$(which java)")")")" /usr/lib/jvm/java
 ENV JAVA_HOME=/usr/lib/jvm/java
-# PySpark, pandas and the Jupyter kernel for the Spark labs
-RUN pip3 install pyspark 'pandas<3' pyarrow ipykernel
+# PySpark, pandas, the Jupyter kernel and the PostgreSQL driver for the Spark labs
+RUN pip3 install pyspark 'pandas<3' pyarrow ipykernel 'psycopg[binary]'
 USER $USER

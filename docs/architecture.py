@@ -14,6 +14,7 @@ from diagrams.aws.analytics import (Athena, Glue, GlueCrawlers, GlueDataCatalog,
 from diagrams.aws.storage import S3
 from diagrams.generic.storage import Storage
 from diagrams.onprem.analytics import Spark
+from diagrams.onprem.database import PostgreSQL
 from diagrams.onprem.client import Client
 from diagrams.programming.language import Python
 
@@ -262,6 +263,27 @@ def lab07(kit):
         notebook >> kit.branch(label=kit.note("runs the code")) >> spark
 
 
+def lab08(kit):
+    with kit.diagram("Lab 8 - PostgreSQL and Spark SQL on the same flights",
+                     "Lab 8", "lab08_postgres_spark_sql"):
+        files = Storage(kit.pick("Your computer\nFlights CSV: 1 to\n20 million",
+                                 "Flight files"),
+                        height=kit.height)
+        postgres = PostgreSQL(kit.pick("PostgreSQL\nlocal service",
+                                       "PostgreSQL"),
+                              height=kit.height)
+        spark = Spark(kit.pick("Spark\nParquet files", "Spark"),
+                      height=kit.height)
+        notebook = Python(kit.pick(
+            "Notebook\npostgres_spark_sql.ipynb\nbuilds the table", "Notebook"),
+                          height=kit.height)
+
+        files >> kit.flow(label=kit.note("COPY")) >> postgres
+        files >> kit.flow(label=kit.note("writes Parquet")) >> spark
+        postgres << kit.branch(label=kit.note("runs the queries")) << notebook
+        spark << kit.branch(label=kit.note("runs the queries")) << notebook
+
+
 BLUE = "#336791"
 AMBER = "#b45309"
 TEAL = "#0f766e"
@@ -477,5 +499,6 @@ def lab01b(kit):
 
 for is_small in (False, True):
     lab_kit = Kit(is_small)
-    for lab in (lab01a, lab01b, lab02, lab03, lab04, lab05, lab06, lab07):
+    for lab in (lab01a, lab01b, lab02, lab03, lab04, lab05, lab06, lab07,
+                lab08):
         lab(lab_kit)

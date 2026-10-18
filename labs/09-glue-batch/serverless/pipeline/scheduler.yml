@@ -1,0 +1,13 @@
+Resources:
+  PipelineSchedule:
+    Type: AWS::Scheduler::Schedule
+    Properties:
+      Name: ${self:custom.pipeline.scheduleName}
+      State: ${self:custom.pipeline.scheduleState}
+      ScheduleExpression: rate(5 minutes)
+      FlexibleTimeWindow:
+        Mode: 'OFF'
+      Target:
+        Arn: !Ref PipelineStateMachine
+        RoleArn: !GetAtt SchedulerRole.Arn
+        Input: '{"input_path": "s3://${self:custom.pipeline.bucketName}/input/flights/", "output_path": "s3://${self:custom.pipeline.bucketName}/output/delays/"}'

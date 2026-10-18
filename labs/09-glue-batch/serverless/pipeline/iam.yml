@@ -1,0 +1,70 @@
+Resources:
+  GlueJobRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: ${self:custom.servicePrefix}-glue-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: glue.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole
+      Policies:
+        - PolicyName: ReadAndWriteThePipelineBucket
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:DeleteObject
+                  - s3:GetObject
+                  - s3:ListBucket
+                  - s3:PutObject
+                Resource:
+                  - !GetAtt PipelineBucket.Arn
+                  - !Sub ${PipelineBucket.Arn}/*
+  StateMachineRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: ${self:custom.servicePrefix}-machine-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: states.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: RunTheGlueJobAndWait
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - glue:BatchStopJobRun
+                  - glue:GetJobRun
+                  - glue:GetJobRuns
+                  - glue:StartJobRun
+                Resource: '*'
+  SchedulerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: ${self:custom.servicePrefix}-schedule-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: scheduler.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: StartTheStateMachine
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: states:StartExecution
+                Resource: !Ref PipelineStateMachine

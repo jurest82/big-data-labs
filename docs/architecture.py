@@ -11,6 +11,7 @@ import graphviz
 from diagrams import Diagram, Edge
 from diagrams.aws.analytics import (Athena, Glue, GlueCrawlers, GlueDataCatalog,
                                     KinesisDataFirehose)
+from diagrams.aws.integration import EventbridgeScheduler, StepFunctions
 from diagrams.aws.storage import S3
 from diagrams.generic.storage import Storage
 from diagrams.onprem.analytics import Spark
@@ -284,6 +285,32 @@ def lab08(kit):
         spark << kit.branch(label=kit.note("runs the queries")) << notebook
 
 
+def lab09(kit):
+    with kit.diagram("Lab 9 - A batch pipeline with AWS Glue", "Lab 9",
+                     "lab09_glue_batch"):
+        computer = Client(kit.pick(
+            "Your computer\nuploads the script\nand the flights",
+            "Your computer"),
+                          height=kit.height)
+        scheduler = EventbridgeScheduler(kit.pick("EventBridge\nScheduler",
+                                                  "Scheduler"),
+                                         height=kit.height)
+        machine = StepFunctions(kit.pick("Step Functions\nstate machine",
+                                         "Step Functions"),
+                                height=kit.height)
+        job = Glue(kit.pick("Glue job\nflight_delays.py", "Glue job"),
+                   height=kit.height)
+        bucket = S3(kit.pick("S3\ninput/ and output/", "S3"), height=kit.height)
+
+        scheduler >> kit.flow(label=kit.note("every 5 minutes")) >> machine
+        machine >> kit.flow(
+            label=kit.note("starts the job,\nwaits and retries once")) >> job
+        job >> kit.flow(
+            label=kit.note("reads input/,\nwrites output/")) >> bucket
+        computer >> kit.branch(label=kit.note("aws s3 cp"),
+                               tailport="e") >> bucket
+
+
 BLUE = "#336791"
 AMBER = "#b45309"
 TEAL = "#0f766e"
@@ -499,6 +526,6 @@ def lab01b(kit):
 
 for is_small in (False, True):
     lab_kit = Kit(is_small)
-    for lab in (lab01a, lab01b, lab02, lab03, lab04, lab05, lab06, lab07,
-                lab08):
+    for lab in (lab01a, lab01b, lab02, lab03, lab04, lab05, lab06, lab07, lab08,
+                lab09):
         lab(lab_kit)

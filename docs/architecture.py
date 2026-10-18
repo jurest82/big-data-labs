@@ -1,5 +1,5 @@
-"""Generates the diagram of each lab: the architecture of the AWS labs and the
-data model of labs 1A and 1B.
+"""Generates the diagram of each lab: the architecture of the AWS labs, the
+local setup of lab 6 and the data model of labs 1A and 1B.
 
 Each diagram comes in two sizes: the full one, with details and labels on the
 arrows, for the lab README and the slides, and a small one (`*_small.png`),
@@ -11,8 +11,13 @@ import graphviz
 from diagrams import Diagram, Edge
 from diagrams.aws.analytics import (Athena, Glue, GlueCrawlers, GlueDataCatalog,
                                     KinesisDataFirehose)
+from diagrams.aws.integration import EventbridgeScheduler, StepFunctions
 from diagrams.aws.storage import S3
+from diagrams.generic.storage import Storage
+from diagrams.onprem.analytics import Spark
+from diagrams.onprem.database import PostgreSQL
 from diagrams.onprem.client import Client
+from diagrams.programming.language import Python
 
 DARK = "#1a1a1a"
 GREY = "#5c5c5c"
@@ -207,6 +212,103 @@ def lab05(kit):
             label=kit.note("a file every\n60 s or 5 MiB")) >> bucket
         bucket << kit.flow(label=kit.note("reads\nthe files")) << athena
         athena >> kit.support(label=kit.note("table\ndefinition")) >> catalog
+
+
+def lab06(kit):
+    with kit.diagram("Lab 6 - Apache Spark on your computer", "Lab 6",
+                     "lab06_spark_local"):
+        # Declared first so it ranks above the chain, away from the labels.
+        notebook = Python(kit.pick("Notebook\nspark_local.ipynb", "Notebook"),
+                          height=kit.height,
+                          labelloc="t")
+        generator = Python(kit.pick("generate_flights.py\n10 million flights",
+                                    "Generator"),
+                           height=kit.height)
+        files = Storage(kit.pick("Your computer\n9 CSV files, 878 MiB",
+                                 "Flight files"),
+                        height=kit.height)
+        spark = Spark(kit.pick("Spark\nlocal[*], 10 cores", "Spark"),
+                      height=kit.height)
+        web_ui = Client(kit.pick("Web UI\nlocalhost:4040", "Web UI"),
+                        height=kit.height)
+
+        generator >> kit.flow(label=kit.note("writes")) >> files
+        files >> kit.flow(label=kit.note("reads")) >> spark
+        spark >> kit.flow(label=kit.note("jobs, stages\nand tasks")) >> web_ui
+        notebook >> kit.branch(label=kit.note("runs the code")) >> spark
+
+
+def lab07(kit):
+    with kit.diagram("Lab 7 - Parquet and partitioning with Spark", "Lab 7",
+                     "lab07_parquet_partitioning"):
+        # Declared first so it ranks above the chain, away from the labels.
+        notebook = Python(kit.pick("Notebook\nspark_parquet.ipynb", "Notebook"),
+                          height=kit.height,
+                          labelloc="t")
+        csv_files = Storage(kit.pick("Your computer\n9 CSV files, 878 MiB",
+                                     "CSV files"),
+                            height=kit.height)
+        spark = Spark(kit.pick("Spark\nlocal[*], 10 cores", "Spark"),
+                      height=kit.height)
+        parquet = Storage(kit.pick(
+            "Your computer\nParquet: flat, by month,\nby day, 4 codecs",
+            "Parquet files"),
+                          height=kit.height)
+        web_ui = Client(kit.pick("Web UI\nlocalhost:4040", "Web UI"),
+                        height=kit.height)
+
+        csv_files >> kit.flow(label=kit.note("reads")) >> spark
+        spark >> kit.flow(label=kit.note("writes")) >> parquet
+        spark >> kit.flow(
+            label=kit.note("files and bytes\nread by each query")) >> web_ui
+        notebook >> kit.branch(label=kit.note("runs the code")) >> spark
+
+
+def lab08(kit):
+    with kit.diagram("Lab 8 - PostgreSQL and Spark SQL on the same flights",
+                     "Lab 8", "lab08_postgres_spark_sql"):
+        files = Storage(kit.pick("Your computer\nFlights CSV: 1 to\n20 million",
+                                 "Flight files"),
+                        height=kit.height)
+        postgres = PostgreSQL(kit.pick("PostgreSQL\nlocal service",
+                                       "PostgreSQL"),
+                              height=kit.height)
+        spark = Spark(kit.pick("Spark\nParquet files", "Spark"),
+                      height=kit.height)
+        notebook = Python(kit.pick(
+            "Notebook\npostgres_spark_sql.ipynb\nbuilds the table", "Notebook"),
+                          height=kit.height)
+
+        files >> kit.flow(label=kit.note("COPY")) >> postgres
+        files >> kit.flow(label=kit.note("writes Parquet")) >> spark
+        postgres << kit.branch(label=kit.note("runs the queries")) << notebook
+        spark << kit.branch(label=kit.note("runs the queries")) << notebook
+
+
+def lab09(kit):
+    with kit.diagram("Lab 9 - A batch pipeline with AWS Glue", "Lab 9",
+                     "lab09_glue_batch"):
+        computer = Client(kit.pick(
+            "Your computer\nuploads the script\nand the flights",
+            "Your computer"),
+                          height=kit.height)
+        scheduler = EventbridgeScheduler(kit.pick("EventBridge\nScheduler",
+                                                  "Scheduler"),
+                                         height=kit.height)
+        machine = StepFunctions(kit.pick("Step Functions\nstate machine",
+                                         "Step Functions"),
+                                height=kit.height)
+        job = Glue(kit.pick("Glue job\nflight_delays.py", "Glue job"),
+                   height=kit.height)
+        bucket = S3(kit.pick("S3\ninput/ and output/", "S3"), height=kit.height)
+
+        scheduler >> kit.flow(label=kit.note("every 5 minutes")) >> machine
+        machine >> kit.flow(
+            label=kit.note("starts the job,\nwaits and retries once")) >> job
+        job >> kit.flow(
+            label=kit.note("reads input/,\nwrites output/")) >> bucket
+        computer >> kit.branch(label=kit.note("aws s3 cp"),
+                               tailport="e") >> bucket
 
 
 BLUE = "#336791"
@@ -424,5 +526,6 @@ def lab01b(kit):
 
 for is_small in (False, True):
     lab_kit = Kit(is_small)
-    for lab in (lab01a, lab01b, lab02, lab03, lab04, lab05):
+    for lab in (lab01a, lab01b, lab02, lab03, lab04, lab05, lab06, lab07, lab08,
+                lab09):
         lab(lab_kit)

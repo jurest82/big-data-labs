@@ -1,0 +1,45 @@
+Resources:
+  PipelineStateMachine:
+    Type: AWS::StepFunctions::StateMachine
+    Properties:
+      StateMachineName: ${self:custom.pipeline.machineName}
+      StateMachineType: STANDARD
+      RoleArn: !GetAtt StateMachineRole.Arn
+      DefinitionString: |
+        {
+          "StartAt": "RunGlueJob",
+          "States": {
+            "RunGlueJob": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::glue:startJobRun.sync",
+              "Parameters": {
+                "JobName": "${self:custom.pipeline.jobName}",
+                "Arguments": {
+                  "--input_path.$": "$.input_path",
+                  "--output_path.$": "$.output_path"
+                }
+              },
+              "TimeoutSeconds": 900,
+              "Retry": [
+                {
+                  "ErrorEquals": ["States.TaskFailed"],
+                  "IntervalSeconds": 10,
+                  "MaxAttempts": 1,
+                  "BackoffRate": 2.0
+                }
+              ],
+              "Catch": [
+                {
+                  "ErrorEquals": ["States.ALL"],
+                  "Next": "JobFailed"
+                }
+              ],
+              "End": true
+            },
+            "JobFailed": {
+              "Type": "Fail",
+              "Error": "GlueJobFailed",
+              "Cause": "The Glue job failed after its retry"
+            }
+          }
+        }

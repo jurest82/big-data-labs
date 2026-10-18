@@ -14,7 +14,7 @@ STEP_COUNT=3
 
 echo "${COLOR_MAGENTA}${STEP}/$STEP_COUNT:${COLOR_GREEN} Configuring Git.${COLOR_DEFAULT}"
 GIT_SCRIPT_PATH=$EXEC_PATH/git.sh
-chmod +x $GIT_SCRIPT_PATH
+sudo chmod +x $GIT_SCRIPT_PATH
 . $GIT_SCRIPT_PATH
 let STEP++
 
@@ -31,7 +31,7 @@ let STEP++
 echo "${COLOR_MAGENTA}${STEP}/$STEP_COUNT:${COLOR_GREEN} Configuring AWS credentials.${COLOR_DEFAULT}"
 if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ]; then
     AWS_SCRIPT_PATH=$EXEC_PATH/aws.sh
-    chmod +x $AWS_SCRIPT_PATH
+    sudo chmod +x $AWS_SCRIPT_PATH
     $AWS_SCRIPT_PATH
     AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text 2>/dev/null)
     if [ -n "$AWS_ACCOUNT_ID" ]; then

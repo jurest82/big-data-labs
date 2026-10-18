@@ -22,6 +22,9 @@ services:
       - PGUSER=postgres
       - PGPASSWORD=example
       - PGDATABASE=shop
+    # Spark web UI of the labs that run Spark in this container
+    ports:
+      - '127.0.0.1:4040:4040'
     working_dir: /app
     restart: unless-stopped
     depends_on:

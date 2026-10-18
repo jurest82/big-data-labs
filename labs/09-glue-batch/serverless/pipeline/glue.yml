@@ -1,0 +1,19 @@
+Resources:
+  FlightDelaysJob:
+    Type: AWS::Glue::Job
+    Properties:
+      Name: ${self:custom.pipeline.jobName}
+      Role: !GetAtt GlueJobRole.Arn
+      GlueVersion: '6.0'
+      WorkerType: G.1X
+      NumberOfWorkers: 2
+      Timeout: 10
+      MaxRetries: 0
+      Command:
+        Name: glueetl
+        ScriptLocation: s3://${self:custom.pipeline.bucketName}/scripts/flight_delays.py
+      DefaultArguments:
+        --job-language: python
+        --TempDir: s3://${self:custom.pipeline.bucketName}/tmp/
+        --input_path: s3://${self:custom.pipeline.bucketName}/input/flights/
+        --output_path: s3://${self:custom.pipeline.bucketName}/output/delays/

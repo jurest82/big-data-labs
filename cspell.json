@@ -48,15 +48,18 @@
     "guarulhos",
     "gómez",
     "hashpartitioning",
+    "headport",
     "idat",
     "iend",
     "ihdr",
     "iibbbbb",
+    "isnotnull",
     "jsonserde",
     "kernelspec",
     "labelloc",
     "lakehouse",
     "lhead",
+    "librdkafka",
     "lineas",
     "matecana",
     "medallion",
@@ -68,6 +71,7 @@
     "norte",
     "openx",
     "palonegro",
+    "partitioner",
     "penwidth",
     "pereira",
     "pgadmin",
@@ -88,6 +92,7 @@
     "pérez",
     "rankdir",
     "ranksep",
+    "rebalances",
     "serde",
     "serdeproperties",
     "sofía",
@@ -97,6 +102,7 @@
     "tocumen",
     "trunc",
     "usecols",
-    "yapf"
+    "yapf",
+    "zstd"
   ]
 }

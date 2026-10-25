@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Lab 10: Apache Kafka on your computer, with its diagram in `docs/`, a single-node Kafka service in the development container and four Python scripts (create the topic, a producer of order events with the order id as the key, a consumer of a group that confirms its position and a command that shows the offsets and the lag) that show partitions, keys, offsets, confirmed positions, consumer groups and the rebalance
+- Lab 11: from Kafka to PostgreSQL, with its diagram in `docs/`, a notebook that starts a generator of random order events and two consumers that insert them into two tables of the local PostgreSQL, stops the consumers like a crash would, shows the repeated events in the table without a key and none in the one with `event_id` as its primary key, adds a second consumer to a group and reprocesses every event from the beginning
 - Development container: the Kafka service (`apache/kafka:4.3.2`) and the `confluent-kafka` client in the image
 
 ## [1.1.0] - 18/10/2026

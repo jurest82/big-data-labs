@@ -80,4 +80,6 @@ RUN apt-get install -y openjdk-17-jre-headless \
 ENV JAVA_HOME=/usr/lib/jvm/java
 # PySpark, pandas, the Jupyter kernel, the PostgreSQL driver and the AWS Glue library for the Spark labs
 RUN pip3 install pyspark 'pandas<3' pyarrow ipykernel 'psycopg[binary]' awsgluedataplanepython==6.0.0
+# Kafka client for the Kafka lab
+RUN pip3 install confluent-kafka==2.16.0
 USER $USER

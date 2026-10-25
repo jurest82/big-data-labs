@@ -17,6 +17,7 @@ from diagrams.generic.storage import Storage
 from diagrams.onprem.analytics import Spark
 from diagrams.onprem.database import PostgreSQL
 from diagrams.onprem.client import Client
+from diagrams.onprem.queue import Kafka
 from diagrams.programming.language import Python
 
 DARK = "#1a1a1a"
@@ -311,6 +312,28 @@ def lab09(kit):
                                tailport="e") >> bucket
 
 
+def lab10(kit):
+    with kit.diagram("Lab 10 - Kafka on your computer", "Lab 10",
+                     "lab10_kafka"):
+        producer = Python(kit.pick("producer.py\npublishes order events",
+                                   "Producer"),
+                          height=kit.height)
+        kafka = Kafka(kit.pick("Kafka\ntopic orders,\n3 partitions", "Kafka"),
+                      height=kit.height)
+        assignment = Python(kit.pick("consumer.py\ngroup assignment",
+                                     "Assignment"),
+                            height=kit.height)
+        analytics = Python(kit.pick("consumer.py\ngroup analytics",
+                                    "Analytics"),
+                           height=kit.height)
+
+        producer >> kit.flow(label=kit.note("key: order id")) >> kafka
+        kafka >> kit.edge(label=kit.note("reads all\nevents"),
+                          headport="w") >> assignment
+        kafka >> kit.edge(label=kit.note("reads all\nevents"),
+                          headport="w") >> analytics
+
+
 BLUE = "#336791"
 AMBER = "#b45309"
 TEAL = "#0f766e"
@@ -527,5 +550,5 @@ def lab01b(kit):
 for is_small in (False, True):
     lab_kit = Kit(is_small)
     for lab in (lab01a, lab01b, lab02, lab03, lab04, lab05, lab06, lab07, lab08,
-                lab09):
+                lab09, lab10):
         lab(lab_kit)

@@ -38,8 +38,9 @@ It is built as a teaching project: every lab runs inside Docker, so nothing is i
 | 7   | Parquet files, partitioning and compression with Spark                   | Local Spark      | Ready  |
 | 8   | PostgreSQL and Spark SQL on the same flights                             | Local Spark      | Ready  |
 | 9   | A batch pipeline: a Spark job in AWS Glue, Step Functions and a schedule | AWS              | Ready  |
+| 10  | Apache Kafka on your computer: partitions, offsets and consumer groups   | Local Kafka      | Ready  |
 
-Labs 1, 6, 7 and 8 run only on your computer. Labs 2 to 4 work with the free plan of your AWS account. Lab 5, and the labs after it, need the paid plan, and its README explains how to upgrade. Labs 2 to 4 share one base stack (an S3 bucket with zones, a Glue database and an Athena workgroup), deployed once. Labs 5 and 9 have their own stack. Each lab has its own README with its steps and how to remove what it created. Labs 2 to 4 remove the base stack together, at the end of lab 4.
+Labs 1, 6, 7, 8 and 10 run only on your computer. Labs 2 to 4 work with the free plan of your AWS account. Lab 5, and the labs after it, need the paid plan, and its README explains how to upgrade. Labs 2 to 4 share one base stack (an S3 bucket with zones, a Glue database and an Athena workgroup), deployed once. Labs 5 and 9 have their own stack. Each lab has its own README with its steps and how to remove what it created. Labs 2 to 4 remove the base stack together, at the end of lab 4.
 
 | Lab 1A: normalization                                                                                                          | Lab 1B: star schema                                                                                                   |
 | ------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------- |
@@ -61,9 +62,13 @@ Labs 1, 6, 7 and 8 run only on your computer. Labs 2 to 4 work with the free pla
 | --------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
 | <a href="labs/08-postgres-spark-sql/"><img src="docs/lab08_postgres_spark_sql_small.png" alt="Lab 8 setup" width="400"></a> | <a href="labs/09-glue-batch/"><img src="docs/lab09_glue_batch_small.png" alt="Lab 9 architecture" width="400"></a> |
 
+| Lab 10: Kafka on your computer                                                                     |
+| -------------------------------------------------------------------------------------------------- |
+| <a href="labs/10-kafka/"><img src="docs/lab10_kafka_small.png" alt="Lab 10 setup" width="400"></a> |
+
 ### Repository structure
 
-- **`.docker/`**: the multi-stage `Dockerfile`, `docker-compose.yml` (the development container, PostgreSQL and pgAdmin) and the scripts the container runs when it is created.
+- **`.docker/`**: the multi-stage `Dockerfile`, `docker-compose.yml` (the development container, PostgreSQL, pgAdmin and Kafka) and the scripts the container runs when it is created.
 - **`.envs/`**: your credentials, git-ignored. The `*.example` files show which variables you need.
 - **`docs/`**: the diagram of each lab (the data model of labs 1A and 1B, the architecture of the AWS labs), in a full and a small size, generated from `docs/architecture.py` with `python3 docs/architecture.py`.
 - **`labs/`**: one folder per lab, `labs/<NN>-<name>/`. Code shared by several labs, such as the data generator, lives in `labs/shared/`.
@@ -85,10 +90,11 @@ At `.envs` folder, copy `aws.env.example` to `aws.env` and `sls.env.example` to 
 
 ### Local services
 
-The development container starts two more services, and publishes the web UI of Spark:
+The development container starts three more services, and publishes the web UI of Spark:
 
 - **PostgreSQL**: `localhost:5432`, user `postgres`, password `example`, database `shop`. Inside the development container, `psql` already points to it, so you can run `psql` with no flags.
 - **pgAdmin**: <http://localhost:5050>. The server is already registered; the first time you connect, it asks for the password: `example`.
+- **Kafka**: `kafka:9092`, reachable only from inside the development container, which is where the scripts of lab 10 run.
 - **Spark web UI**: <http://localhost:4040>. It answers only while a Spark session of lab 6, 7 or 8 is open.
 
 ### Windows

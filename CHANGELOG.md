@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Lab 10: Apache Kafka on your computer, with its diagram in `docs/`, a single-node Kafka service in the development container and four Python scripts (create the topic, a producer of order events with the order id as the key, a consumer of a group that confirms its position and a command that shows the offsets and the lag) that show partitions, keys, offsets, confirmed positions, consumer groups and the rebalance
+- Development container: the Kafka service (`apache/kafka:4.3.2`) and the `confluent-kafka` client in the image
+
 ## [1.1.0] - 18/10/2026
 
 ### Added

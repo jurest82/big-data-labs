@@ -334,6 +334,29 @@ def lab10(kit):
                           headport="w") >> analytics
 
 
+def lab11(kit):
+    with kit.diagram("Lab 11 - From Kafka to PostgreSQL", "Lab 11",
+                     "lab11_kafka_postgres"):
+        generator = Python(kit.pick("generator.py\nrandom order events",
+                                    "Generator"),
+                           height=kit.height)
+        kafka = Kafka(kit.pick("Kafka\ntopic orders", "Kafka"),
+                      height=kit.height)
+        sinks = Python(kit.pick("sink.py\ntwo consumer groups", "Consumers"),
+                       height=kit.height)
+        postgres = PostgreSQL(kit.pick("PostgreSQL\nlocal service",
+                                       "PostgreSQL"),
+                              height=kit.height)
+        notebook = Python(kit.pick("Notebook\nstarts, stops and queries",
+                                   "Notebook"),
+                          height=kit.height)
+
+        generator >> kit.flow(label=kit.note("key: order id")) >> kafka
+        kafka >> kit.flow(label=kit.note("reads all\nevents")) >> sinks
+        sinks >> kit.flow(label=kit.note("INSERT")) >> postgres
+        postgres << kit.branch(label=kit.note("queries")) << notebook
+
+
 BLUE = "#336791"
 AMBER = "#b45309"
 TEAL = "#0f766e"
@@ -550,5 +573,5 @@ def lab01b(kit):
 for is_small in (False, True):
     lab_kit = Kit(is_small)
     for lab in (lab01a, lab01b, lab02, lab03, lab04, lab05, lab06, lab07, lab08,
-                lab09, lab10):
+                lab09, lab10, lab11):
         lab(lab_kit)

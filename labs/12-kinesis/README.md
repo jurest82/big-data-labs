@@ -18,7 +18,7 @@
 
 `Lab 12: orders in real time with Kinesis Data Streams` sends the events of the orders of a delivery app to an Amazon Kinesis data stream. A Python program publishes the events with the order id as the partition key, an AWS Lambda function reads the stream and writes each event to an Amazon DynamoDB table, and you query the table. You also read the records of a shard directly, to see the partition key and the sequence number that Kinesis keeps for each record.
 
-It has its own stack, with the stream, the table and the function, and does not need the stacks of the other labs. Labs 13 and 14 read the same stream, and each one starts by deploying this stack again.
+It has its own stack, with the stream, the table and the function, and does not need the stacks of the other labs.
 
 <img src="../../docs/lab12_kinesis.png" alt="Lab 12: send_orders.py publishes order events to a Kinesis data stream with two shards, and a Lambda function writes them to a DynamoDB table" width="720">
 

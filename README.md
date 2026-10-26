@@ -26,22 +26,23 @@ It is built as a teaching project: every lab runs inside Docker, so nothing is i
 
 ### The labs
 
-| Lab | Topic                                                                       | Runs on          | Status |
-| --- | --------------------------------------------------------------------------- | ---------------- | ------ |
-| 1A  | OLTP anomalies, normalization and JOINs                                     | Local PostgreSQL | Ready  |
-| 1B  | Star schema, a query by category and month, and a data mart                 | Local PostgreSQL | Ready  |
-| 2   | Data lake: S3, a Glue crawler and Athena                                    | AWS              | Ready  |
-| 3   | Apache Iceberg table: update, schema evolution and time travel              | AWS              | Ready  |
-| 4   | Medallion layers (bronze, silver, gold) with SQL in Athena                  | AWS              | Ready  |
-| 5   | Streaming click events to S3 with Firehose                                  | AWS              | Ready  |
-| 6   | Apache Spark on your computer, with the flights of an airline               | Local Spark      | Ready  |
-| 7   | Parquet files, partitioning and compression with Spark                      | Local Spark      | Ready  |
-| 8   | PostgreSQL and Spark SQL on the same flights                                | Local Spark      | Ready  |
-| 9   | A batch pipeline: a Spark job in AWS Glue, Step Functions and a schedule    | AWS              | Ready  |
-| 10  | Apache Kafka on your computer: partitions, offsets and consumer groups      | Local Kafka      | Ready  |
-| 11  | From Kafka to PostgreSQL: a live pipeline, repeated events and reprocessing | Local Kafka      | Ready  |
+| Lab | Topic                                                                       | Runs on          | Status    |
+| --- | --------------------------------------------------------------------------- | ---------------- | --------- |
+| 1A  | OLTP anomalies, normalization and JOINs                                     | Local PostgreSQL | Ready     |
+| 1B  | Star schema, a query by category and month, and a data mart                 | Local PostgreSQL | Ready     |
+| 2   | Data lake: S3, a Glue crawler and Athena                                    | AWS              | Ready     |
+| 3   | Apache Iceberg table: update, schema evolution and time travel              | AWS              | Ready     |
+| 4   | Medallion layers (bronze, silver, gold) with SQL in Athena                  | AWS              | Ready     |
+| 5   | Streaming click events to S3 with Firehose                                  | AWS              | Ready     |
+| 6   | Apache Spark on your computer, with the flights of an airline               | Local Spark      | Ready     |
+| 7   | Parquet files, partitioning and compression with Spark                      | Local Spark      | Ready     |
+| 8   | PostgreSQL and Spark SQL on the same flights                                | Local Spark      | Ready     |
+| 9   | A batch pipeline: a Spark job in AWS Glue, Step Functions and a schedule    | AWS              | Ready     |
+| 10  | Apache Kafka on your computer: partitions, offsets and consumer groups      | Local Kafka      | Ready     |
+| 11  | From Kafka to PostgreSQL: a live pipeline, repeated events and reprocessing | Local Kafka      | Ready     |
+| 12  | Order events in real time: Kinesis Data Streams, Lambda and DynamoDB        | AWS              | Ready     |
 
-Labs 1, 6, 7, 8, 10 and 11 run only on your computer. Labs 2 to 4 work with the free plan of your AWS account. Lab 5, and the labs after it, need the paid plan, and its README explains how to upgrade. Labs 2 to 4 share one base stack (an S3 bucket with zones, a Glue database and an Athena workgroup), deployed once. Labs 5 and 9 have their own stack. Each lab has its own README with its steps and how to remove what it created. Labs 2 to 4 remove the base stack together, at the end of lab 4.
+Labs 1, 6, 7, 8, 10 and 11 run only on your computer. Labs 2 to 4 work with the free plan of your AWS account. Lab 5, and the labs after it, need the paid plan, and its README explains how to upgrade. Labs 2 to 4 share one base stack (an S3 bucket with zones, a Glue database and an Athena workgroup), deployed once. Labs 5, 9 and 12 have their own stack. Each lab has its own README with its steps and how to remove what it created. Labs 2 to 4 remove the base stack together, at the end of lab 4.
 
 | Lab 1A: normalization                                                                                                          | Lab 1B: star schema                                                                                                   |
 | ------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------- |
@@ -66,6 +67,10 @@ Labs 1, 6, 7, 8, 10 and 11 run only on your computer. Labs 2 to 4 work with the 
 | Lab 10: Kafka on your computer                                                                     | Lab 11: from Kafka to PostgreSQL                                                                                     |
 | -------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
 | <a href="labs/10-kafka/"><img src="docs/lab10_kafka_small.png" alt="Lab 10 setup" width="400"></a> | <a href="labs/11-kafka-postgres/"><img src="docs/lab11_kafka_postgres_small.png" alt="Lab 11 setup" width="400"></a> |
+
+| Lab 12: orders in real time with Kinesis                                                                      |
+| ------------------------------------------------------------------------------------------------------------- |
+| <a href="labs/12-kinesis/"><img src="docs/lab12_kinesis_small.png" alt="Lab 12 architecture" width="400"></a> |
 
 ### Repository structure
 

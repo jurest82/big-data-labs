@@ -1,0 +1,24 @@
+Resources:
+  OrdersStreamName:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/OrdersStreamName
+      Tier: Standard
+      Type: String
+      Value: !Ref OrdersStream
+
+  OrdersStreamArn:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/OrdersStreamArn
+      Tier: Standard
+      Type: String
+      Value: !GetAtt OrdersStream.Arn
+
+  OrderEventsTableName:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub /${AWS::StackName}/OrderEventsTableName
+      Tier: Standard
+      Type: String
+      Value: !Ref OrderEventsTable

@@ -10,13 +10,17 @@ with only the icons and their names, for the root README.
 import graphviz
 from diagrams import Diagram, Edge
 from diagrams.aws.analytics import (Athena, Glue, GlueCrawlers, GlueDataCatalog,
-                                    KinesisDataFirehose)
+                                    KinesisDataAnalytics, KinesisDataFirehose,
+                                    KinesisDataStreams)
+from diagrams.aws.compute import Lambda
+from diagrams.aws.database import Dynamodb
 from diagrams.aws.integration import EventbridgeScheduler, StepFunctions
 from diagrams.aws.storage import S3
 from diagrams.generic.storage import Storage
 from diagrams.onprem.analytics import Spark
 from diagrams.onprem.database import PostgreSQL
 from diagrams.onprem.client import Client
+from diagrams.onprem.queue import Kafka
 from diagrams.programming.language import Python
 
 DARK = "#1a1a1a"
@@ -311,6 +315,89 @@ def lab09(kit):
                                tailport="e") >> bucket
 
 
+def lab10(kit):
+    with kit.diagram("Lab 10 - Kafka on your computer", "Lab 10",
+                     "lab10_kafka"):
+        producer = Python(kit.pick("producer.py\npublishes order events",
+                                   "Producer"),
+                          height=kit.height)
+        kafka = Kafka(kit.pick("Kafka\ntopic orders,\n3 partitions", "Kafka"),
+                      height=kit.height)
+        assignment = Python(kit.pick("consumer.py\ngroup assignment",
+                                     "Assignment"),
+                            height=kit.height)
+        analytics = Python(kit.pick("consumer.py\ngroup analytics",
+                                    "Analytics"),
+                           height=kit.height)
+
+        producer >> kit.flow(label=kit.note("key: order id")) >> kafka
+        kafka >> kit.edge(label=kit.note("reads all\nevents"),
+                          headport="w") >> assignment
+        kafka >> kit.edge(label=kit.note("reads all\nevents"),
+                          headport="w") >> analytics
+
+
+def lab11(kit):
+    with kit.diagram("Lab 11 - From Kafka to PostgreSQL", "Lab 11",
+                     "lab11_kafka_postgres"):
+        generator = Python(kit.pick("generator.py\nrandom order events",
+                                    "Generator"),
+                           height=kit.height)
+        kafka = Kafka(kit.pick("Kafka\ntopic orders", "Kafka"),
+                      height=kit.height)
+        sinks = Python(kit.pick("sink.py\ntwo consumer groups", "Consumers"),
+                       height=kit.height)
+        postgres = PostgreSQL(kit.pick("PostgreSQL\nlocal service",
+                                       "PostgreSQL"),
+                              height=kit.height)
+        notebook = Python(kit.pick("Notebook\nstarts, stops and queries",
+                                   "Notebook"),
+                          height=kit.height)
+
+        generator >> kit.flow(label=kit.note("key: order id")) >> kafka
+        kafka >> kit.flow(label=kit.note("reads all\nevents")) >> sinks
+        sinks >> kit.flow(label=kit.note("INSERT")) >> postgres
+        postgres << kit.branch(label=kit.note("queries")) << notebook
+
+
+def lab12(kit):
+    with kit.diagram("Lab 12 - Kinesis Data Streams", "Lab 12",
+                     "lab12_kinesis"):
+        producer = Python(kit.pick("send_orders.py\norder events", "Producer"),
+                          height=kit.height)
+        stream = KinesisDataStreams(kit.pick("Kinesis Data Streams\n2 shards",
+                                             "Kinesis"),
+                                    height=kit.height)
+        consumer = Lambda(kit.pick("Lambda\nconsumer.py", "Lambda"),
+                          height=kit.height)
+        table = Dynamodb(kit.pick("DynamoDB\ntable order-events", "DynamoDB"),
+                         height=kit.height)
+
+        producer >> kit.flow(label=kit.note("key: order id")) >> stream
+        stream >> kit.flow(label=kit.note("batches of\nrecords")) >> consumer
+        consumer >> kit.flow(label=kit.note("PutItem")) >> table
+
+
+def lab13(kit):
+    with kit.diagram("Lab 13 - Flink with windows", "Lab 13", "lab13_flink"):
+        producer = Python(kit.pick("send_events.py\nrepeated and late events",
+                                   "Producer"),
+                          height=kit.height)
+        stream = KinesisDataStreams(kit.pick("Kinesis Data Streams\n1 shard",
+                                             "Kinesis"),
+                                    height=kit.height)
+        flink = KinesisDataAnalytics(kit.pick("Managed Flink\nmain.py",
+                                              "Flink"),
+                                     height=kit.height)
+        table = Dynamodb(kit.pick("DynamoDB\ntable order-windows", "DynamoDB"),
+                         height=kit.height)
+
+        producer >> kit.flow(label=kit.note("key: order id")) >> stream
+        stream >> kit.flow(label=kit.note("events")) >> flink
+        flink >> kit.flow(
+            label=kit.note("one item per restaurant\nand minute")) >> table
+
+
 BLUE = "#336791"
 AMBER = "#b45309"
 TEAL = "#0f766e"
@@ -527,5 +614,5 @@ def lab01b(kit):
 for is_small in (False, True):
     lab_kit = Kit(is_small)
     for lab in (lab01a, lab01b, lab02, lab03, lab04, lab05, lab06, lab07, lab08,
-                lab09):
+                lab09, lab10, lab11, lab12, lab13):
         lab(lab_kit)

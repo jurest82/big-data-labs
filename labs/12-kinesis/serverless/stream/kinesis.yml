@@ -1,0 +1,9 @@
+Resources:
+  OrdersStream:
+    Type: AWS::Kinesis::Stream
+    Properties:
+      Name: ${self:custom.orders.streamName}
+      RetentionPeriodHours: 24
+      ShardCount: 2
+      StreamModeDetails:
+        StreamMode: PROVISIONED

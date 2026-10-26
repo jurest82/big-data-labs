@@ -1,0 +1,14 @@
+consumer:
+  handler: consumer.handler
+  role: !GetAtt ConsumerRole.Arn
+  name: ${self:custom.orders.functionName}
+  timeout: 30
+  environment:
+    TABLE_NAME: ${self:custom.orders.tableName}
+  events:
+    - stream:
+        type: kinesis
+        arn: !GetAtt OrdersStream.Arn
+        batchSize: 100
+        startingPosition: TRIM_HORIZON
+        maximumRetryAttempts: 3

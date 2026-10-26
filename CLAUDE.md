@@ -1,75 +1,173 @@
 # CLAUDE.md: Big Data Labs
 
+Instructions for an AI agent working in this repository. Human-facing documentation is in `README.md` and in the `README.md` of each lab.
+
 ## What this repository is
 
-Hands-on labs for **SI7006 Storage and Processing of Big Data** (EAFIT, master's program in Data Science and Analytics). Each lab accompanies a block of the course presentations: students run it during the session, in their own AWS account when the lab uses AWS, and tear everything down when they finish.
+Hands-on labs for **SI7006 Storage and Processing of Big Data** (EAFIT, master's program in Data Science and Analytics). Each lab accompanies a block of the course presentations: students run it in a session, in their own AWS account when the lab uses AWS, and remove everything it created when they finish.
 
-The first labs (the first weekend) use an online store as their example, with orders, customers, products, reviews (JSON), product photos and click events. There is no single running example for the whole course: the labs of later weeks may use a different context, so do not assume the store when building them. Everything in this repository is written in English: code, documentation, lab statements, and the data itself (table and column names included).
+The first labs use an online store as their example, with orders, customers, products, reviews (JSON), product photos and click events. The Spark labs use the flights of an airline, and the streaming labs use a delivery app. There is no single running example for the whole course, so do not assume the store when building a new lab. Everything in this repository is written in English: code, documentation, lab statements and the data itself (table and column names included).
 
 ## How to work in this repository
 
-Nothing from this project is installed directly on the host. Everything (the `aws` CLI, the `serverless` CLI, Python, formatting and linting) runs inside the Docker containers defined in `.docker/docker-compose.yml`, through the dev container at the repository root.
+Nothing from this project is installed directly on the host. Everything (the `aws` CLI, the `serverless` CLI, Python, formatting and linting) runs inside the Docker containers defined in `.docker/docker-compose.yml`, through the development container at the repository root.
 
-**Claude never runs deploys, `git push`, `serverless deploy` or `serverless remove`, or any other command that changes state in AWS or in the repository's remote.** Give the command, or a read-only diagnosis (`serverless print`/`package`, `aws ... describe-*`/`get-*`/`list-*`, `cfn-lint`), and let the developer run it. Read-only Athena queries (`SELECT`, `SHOW`, `DESCRIBE`) through the CLI (`aws athena start-query-execution`, workgroup `big-data-labs`, database `big_data_labs`) are fine too, and are how the expected results of a lab are validated once the developer has deployed it. Creating or dropping tables, `CTAS`, `INSERT`, `UPDATE`, `DELETE` and anything else that writes data are state changes the developer runs.
-
-One lab is built at a time. The developer reviews each lab before the next one starts.
+- **The agent does not run commands that change state** in AWS or in the remote repository: `serverless deploy`, `serverless remove`, `git push`, creating or deleting AWS resources, `CREATE`, `DROP`, `CTAS`, `INSERT`, `UPDATE` or `DELETE` in Athena, and anything else that writes. It gives the command and the user runs it.
+- **Read-only commands are fine:** `serverless print` and `serverless package`, `aws ... describe-*`, `get-*` and `list-*`, `cfn-lint`, and `SELECT`, `SHOW` and `DESCRIBE` queries in Athena through the CLI (`aws athena start-query-execution`, workgroup `big-data-labs`, database `big_data_labs`). Read-only queries are how the expected results of a lab are validated once the user has deployed it.
+- **One lab is built at a time.** The user reviews each lab before the next one starts.
+- **A lab that the user has run and approved is not edited afterwards without telling the user first,** even to change one sentence of text. Say what would change and let the user decide.
+- **Commits are made only when the user asks for them.** See the commit convention below.
 
 ## Repository structure
 
-- `.docker/`: the multi-stage `Dockerfile` (`img-base`, then `img-labs`), `docker-compose.yml`, and the `git.sh`, `aws.sh` and `entrypoint.sh` scripts the dev container runs on creation. The compose file also starts a local PostgreSQL and pgAdmin (lab 1).
-- `.envs/`: git-ignored credentials, `aws.env` and `sls.env`, copied from the `*.example` files. They are optional: lab 1 runs without them.
-- `labs/`: one folder per lab, `labs/<NN>-<name>/`. Shared code, such as the data generator, lives in `labs/shared/`.
+- `.docker/`: the multi-stage `Dockerfile` (`img-base`, then `img-labs`), `docker-compose.yml`, and the `git.sh`, `aws.sh` and `entrypoint.sh` scripts that the development container runs on creation. The compose file also starts a local PostgreSQL, pgAdmin and a single-node Kafka.
+- Root configuration: `package.json` (the `format`, `format:check` and `spell` scripts), `pyproject.toml` (yapf and pylint), `.prettierrc.json`, `.markdownlint.json`, `cspell.json`, `.gitattributes`, `.devcontainer.json` and `.claude/settings.json` (the commands that the agent may run without asking).
+- `.envs/`: git-ignored credentials, `aws.env` and `sls.env`, copied from the `*.example` files. They are optional: the local labs run without them.
+- `labs/`: one folder per lab, `labs/<NN>-<name>/`. Shared code, such as the data generators, lives in `labs/shared/`. Tests are `test_*.py` files next to the code they test, and run with `pytest` on the folder of the lab (for example `pytest labs/12-kinesis`, from `/app` in the development container, where `pytest` and `pytest-cov` are installed).
 - Each lab folder has a `README.md` with the statement and the steps, plus its SQL, Python or `serverless.yml` files.
-- Each lab has a diagram in `docs/`: an architecture diagram for the AWS labs (the `diagrams` library) and a data model for labs 1A and 1B (the `graphviz` package, tables with columns and keys), all generated by `docs/architecture.py` (`python3 docs/architecture.py`, inside the dev container, which has `graphviz`) and linked from the lab README. Every diagram has a full version (for the lab README and the slides) and a small one, `*_small.png`, with only icons and names (for the root README, where the full text would be unreadable). Node labels take at most three short lines, or they overlap the icon. When a lab changes, regenerate its diagram and commit the PNG.
+- `docs/`: one diagram per lab. The AWS labs have an architecture diagram (the `diagrams` library), and labs 1A and 1B have a data model (the `graphviz` package, tables with columns and keys). All of them are generated by `docs/architecture.py` (`python3 docs/architecture.py`, inside the development container, which has `graphviz`) and linked from the lab README. Every diagram has a full version, for the lab README and the slides, and a small one, `*_small.png`, with only icons and names, for the root README, where the full text would be unreadable. Node labels take at most three short lines, or they overlap the icon. When a lab changes, regenerate its diagram and commit the PNG.
+- Generated files that are git-ignored and never committed: `labs/**/output/` (data and results of the labs), `labs/**/app/target/` and `labs/**/app/build/` (Maven output), `.serverless/` and `node_modules/`.
 
 ## The labs
 
-| Lab | Topic                                                                    | Runs on          |
-| --- | ------------------------------------------------------------------------ | ---------------- |
-| 1A  | OLTP anomalies, normalization and JOINs                                  | Local PostgreSQL |
-| 1B  | Star schema, a query by category and month, and a data mart              | Local PostgreSQL |
-| 2   | Data lake: S3, a Glue crawler and Athena, plus a data swamp              | AWS              |
-| 3   | Apache Iceberg table: update, schema evolution and time travel           | AWS              |
-| 4   | Medallion layers (bronze, silver, gold) with SQL in Athena               | AWS              |
-| 5   | Streaming click events to S3 with Firehose                               | AWS              |
-| 6   | Apache Spark on your computer, with flights of an airline                | Local Spark      |
-| 7   | Parquet files, partitioning and compression with Spark                   | Local Spark      |
-| 8   | PostgreSQL and Spark SQL on the same flights                             | Local Spark      |
-| 9   | A batch pipeline: a Spark job in AWS Glue, Step Functions and a schedule | AWS              |
+| Lab | Topic                                                                       | Runs on          |
+| --- | --------------------------------------------------------------------------- | ---------------- |
+| 1A  | OLTP anomalies, normalization and JOINs                                     | Local PostgreSQL |
+| 1B  | Star schema, a query by category and month, and a data mart                 | Local PostgreSQL |
+| 2   | Data lake: S3, a Glue crawler and Athena                                    | AWS              |
+| 3   | Apache Iceberg table: update, schema evolution and time travel              | AWS              |
+| 4   | Medallion layers (bronze, silver, gold) with SQL in Athena                  | AWS              |
+| 5   | Streaming click events to S3 with Firehose                                  | AWS              |
+| 6   | Apache Spark on your computer, with the flights of an airline               | Local Spark      |
+| 7   | Parquet files, partitioning and compression with Spark                      | Local Spark      |
+| 8   | PostgreSQL and Spark SQL on the same flights                                | Local Spark      |
+| 9   | A batch pipeline: a Spark job in AWS Glue, Step Functions and a schedule    | AWS              |
+| 10  | Apache Kafka on your computer: partitions, offsets and consumer groups      | Local Kafka      |
+| 11  | From Kafka to PostgreSQL: a live pipeline, repeated events and reprocessing | Local Kafka      |
+| 12  | Order events in real time: Kinesis Data Streams, Lambda and DynamoDB        | AWS              |
+| 13  | Windows of one minute with Apache Flink on order events                     | AWS              |
 
-The Spark labs (6 and the ones after it) use an airline as their example, with flights, airports, airlines and aircraft, generated by `labs/shared/generator/generate_flights.py` (10 million flights by default, deterministic). They run in the development container: the image installs Java 17, PySpark, pandas, pyarrow and the Jupyter kernel, and the compose file publishes port 4040 for the web UI of Spark, which exists only while a session is open. Labs 6 and 7 are notebooks (`labs/06-spark-local/spark_local.ipynb` and `labs/07-parquet-partitioning/spark_parquet.ipynb`), committed without outputs; their READMEs carry the results of a real run. Lab 7 writes its Parquet copies to `labs/shared/output/parquet` and its README takes the files and bytes that each query read from the scan node of the SQL / DataFrame tab of the web UI. The notebook starts the session with adaptive query execution off (`spark.sql.adaptive.enabled`) so that one action shows as one job in the web UI, with the 200 shuffle partitions of `spark.sql.shuffle.partitions`. It is a course that introduces Spark, so the lab does not explain or demonstrate adaptive query execution. Lab 8 is one notebook, `labs/08-postgres-spark-sql/postgres_spark_sql.ipynb`, that talks to the PostgreSQL service with `psycopg` (installed in the image) and to Spark in the same Python session, so both engines are timed the same way and the comparison tables are built by the notebook itself. It writes to `labs/shared/output/lab08` and deletes it when it ends.
+A lab is added to the table of the root `README.md` (and to its row of diagrams) once the user has deployed or run it and its README.
 
-Lab 9 (`labs/09-glue-batch/`) is the last lab of the second weekend and has its own stack, `serverless/pipeline/`: a bucket, a Glue job (`flight_delays.py`, 2 workers of type `G.1X`, Glue version 6.0, whose Spark 4.1.1 and Python 3.13 are the ones of the development image, so that the logic of the job was checked on the same major version of Spark, a fixed `Timeout` of 10 minutes and `--TempDir` inside the bucket so that Glue does not create one of its own), a Step Functions state machine of type STANDARD (`.sync` does not work in EXPRESS) that starts the job, waits for it and retries once on `States.TaskFailed`, and an EventBridge schedule, `rate(5 minutes)`, created `DISABLED` and enabled by redeploying with `--param="scheduleState=ENABLED"`. The state machine role uses `Resource: '*'` for the four Glue actions, as the Step Functions documentation does, because resource-level support for them was not verified. CloudFormation cannot upload the script of a Glue job (there is no `AWS::S3::Object`), so the README has the student upload it with `aws s3 cp`. The job reads the nine monthly CSV files of the flights generator (1 million flights) and writes the average departure delay of each airline by month as one Parquet file. Its logic was checked against pandas (72 rows, identical counts and averages) with the PySpark of the image and stubs of `awsglue`; the Glue API itself is only exercised when the stack is deployed. The `awsglue` package comes from `awsgluedataplanepython` (the AWS Glue library for local development, on PyPI), installed in the image with `pip` so that the editor and pylint resolve the imports of the job. Version 6.0.0 is the one that supports the Python 3.13 of the image; versions 5.0.0 and 5.1.0 ask for Python 3.11, and the job runs on Glue 6.0. In Glue 6.0 ANSI mode is on by default and `s3://` paths go through S3A, and the job needs no change for either. The job imports `SparkContext` from `pyspark`, not from `pyspark.context`, which PySpark 4 moved. Glue job logs go to CloudWatch log groups that `serverless remove` does not delete. The maintainer deployed and ran the whole lab on 18 October 2026: the job took 69 seconds and its output matched the pandas calculation, the state machine showed the retry and ended in `JobFailed` with a path that does not exist, and the schedule started an execution as soon as it was enabled and then every 5 minutes.
+### Labs 2 to 5
 
-Labs 2 to 4 share one base stack (S3 bucket with zones, a Glue database and an Athena workgroup) deployed once with the Serverless Framework. The Firehose stack of lab 5 is separate. AWS labs use only light services (S3, Glue, Athena, Firehose); no RDS or Redshift. Everything deployed is destroyed at the end of each day. CloudFormation cannot delete a bucket that still has objects, so a destroy step empties the bucket first.
+Labs 2 to 4 share one base stack (an S3 bucket with zones, a Glue database and an Athena workgroup), deployed once with the Serverless Framework. Lab 2 adds its own crawler stack, and the Firehose stack of lab 5 is separate. The store data of labs 1 to 5 comes from `labs/shared/generator/generate_data.py`. AWS labs use only light services (S3, Glue, Athena, Firehose, Step Functions, EventBridge Scheduler, Kinesis, Lambda, DynamoDB and, in lab 13, Managed Service for Apache Flink); there is no RDS or Redshift. CloudFormation cannot delete a bucket that still has objects, so a destroy step empties the bucket first.
+
+### Labs 6 to 8
+
+The Spark labs use an airline as their example, with flights, airports, airlines and aircraft, generated by `labs/shared/generator/generate_flights.py` (10 million flights by default, deterministic). They run in the development container: the image installs Java 17, PySpark, pandas, pyarrow and the Jupyter kernel, and the compose file publishes port 4040 for the web UI of Spark, which exists only while a session is open.
+
+Labs 6 and 7 are notebooks (`labs/06-spark-local/spark_local.ipynb` and `labs/07-parquet-partitioning/spark_parquet.ipynb`), committed without outputs; their READMEs carry the results of a real run. Lab 7 writes its Parquet copies to `labs/shared/output/parquet`, and its README takes the files and bytes that each query read from the scan node of the SQL / DataFrame tab of the web UI. The notebook starts the session with adaptive query execution off (`spark.sql.adaptive.enabled`) so that one action shows as one job in the web UI, with the 200 shuffle partitions of `spark.sql.shuffle.partitions`. The course introduces Spark, so the lab does not explain or demonstrate adaptive query execution.
+
+Lab 8 is one notebook, `labs/08-postgres-spark-sql/postgres_spark_sql.ipynb`, that talks to the PostgreSQL service with `psycopg` (installed in the image) and to Spark in the same Python session, so both engines are timed the same way and the notebook builds the comparison tables itself. It writes to `labs/shared/output/lab08` and deletes it when it ends.
+
+### Lab 9
+
+Lab 9 (`labs/09-glue-batch/`) has its own stack, `serverless/pipeline/`:
+
+- A bucket.
+- A Glue job (`flight_delays.py`) with 2 workers of type `G.1X`, Glue version 6.0 (Spark 4 and Python 3.13, like the development image, so the logic of the job can be checked on the same major version of Spark), a fixed `Timeout` of 10 minutes and `--TempDir` inside the bucket, so that Glue does not create one of its own.
+- A Step Functions state machine of type STANDARD (`.sync` does not work in EXPRESS) that starts the job, waits for it and retries once on `States.TaskFailed`.
+- An EventBridge schedule, `rate(5 minutes)`, created `DISABLED` and enabled by redeploying with `--param="scheduleState=ENABLED"`.
+
+The role of the state machine uses `Resource: '*'` for the four Glue actions, as the Step Functions documentation does, because resource-level support for them was not verified. CloudFormation cannot upload the script of a Glue job (there is no `AWS::S3::Object`), so the README has the student upload it with `aws s3 cp`. The job reads the nine monthly CSV files of the flights generator (1 million flights) and writes the average departure delay of each airline by month as one Parquet file. Its logic can be checked against pandas with the PySpark of the image and stubs of `awsglue`; the Glue API itself is only exercised when the stack is deployed.
+
+The `awsglue` package comes from `awsgluedataplanepython` (the AWS Glue library for local development, on PyPI), installed in the image with `pip` so that the editor and pylint resolve the imports of the job. Version 6.0.0 supports the Python 3.13 of the image; versions 5.0.0 and 5.1.0 ask for Python 3.11, and the job runs on Glue 6.0. In Glue 6.0 ANSI mode is on by default and `s3://` paths go through S3A, and the job needs no change for either. The job imports `SparkContext` from `pyspark`, not from `pyspark.context`, which PySpark 4 moved. Glue job logs go to CloudWatch log groups that `serverless remove` does not delete.
+
+### Labs 10 and 11
+
+Lab 10 (`labs/10-kafka/`) uses a delivery app as its example, not the airline of the Spark labs. It uses a single-node Kafka broker in KRaft mode, the `kafka` service of `.docker/docker-compose.yml` (image `apache/kafka:4.3.2`, advertised as `kafka:9092`, so only the development container reaches it, with a 512 MB heap and the replication factor of the internal topics set to 1), and four scripts that run in the development container with the `confluent-kafka` client (`confluent-kafka==2.16.0`), plus `common.py`, which holds the address of the broker (the environment variable `KAFKA_BOOTSTRAP_SERVERS`, `kafka:9092` by default), the topic and the number of partitions:
+
+- `topic.py` creates or deletes the topic `orders` (3 partitions, replication factor 1).
+- `producer.py` publishes three events per order (`order_created`, `order_confirmed` and `order_delivered`), by stage, with the order id as the key.
+- `consumer.py` is a member of a group, with manual confirmation of its position every `--commit-every` events, a `session.timeout.ms` of 10 seconds and a callback that prints the partitions it receives or loses.
+- `describe.py` prints the first and next offset of each partition and, for a group, its members and its lag.
+
+The producer sets `partitioner` to `murmur2_random`, the hash that the Java client uses, because the default of librdkafka (`consistent_random`, CRC32) put orders 1201 to 1208 only in partitions 0 and 2 and left partition 1 empty. There is no keyless option in the producer: with few events librdkafka keeps the events without a key in one partition, so the demo would not show how Kafka spreads them. The consumers print one partition after another, and Ctrl+C closes the consumer without confirming the events read since the last confirmation, which is what the lab uses to show the events processed twice. A new group starts at the first event (`auto.offset.reset` is `earliest`).
+
+Lab 11 (`labs/11-kafka-postgres/`) follows lab 10, with the same delivery app, the same Kafka service and the scripts `topic.py` and `describe.py` of lab 10, called from the notebook. It is a notebook, `kafka_postgres.ipynb`, committed without outputs, that works as a control panel: it starts `generator.py` and `sink.py` as separate processes with `subprocess.Popen`, kills them with `kill()` (a crash: the consumers do not confirm their position) and queries PostgreSQL with `psycopg` and `pandas`. The scripts are not run inside the notebook because stopping a thread does not behave like a crash.
+
+- `generator.py` publishes random events without stopping (about two orders per second; each order sends `order_created`, `order_confirmed` and then `order_delivered` or, in 8 % of the orders, `order_cancelled`, with a random delay between stages), with a `uuid` `event_id` per event.
+- `sink.py` inserts each event into `lab_11.<table>` with its partition and offset and confirms its position every 50 events, so a killed consumer leaves up to 49 events unconfirmed, which it reads again. With `--idempotent` it inserts with `ON CONFLICT (event_id) DO NOTHING`. `--stop-when-idle` makes it commit and stop after a number of seconds without events, counted from its partition assignment.
+- Two groups read the same topic: `sink-plain` writes to `order_events`, which has no key, and `sink-unique` writes to `order_events_unique`, which has `event_id` as its primary key, so one failure shows duplicates in one table and none in the other.
+- `reset_offsets.py` moves a group to the first offset of each partition with `alter_consumer_group_offsets`, and it only works when the group has no active members. After killing consumers, the notebook waits 12 seconds, longer than the 10 second session timeout of the consumers, so that Kafka drops them.
+
+The replication with a cluster of three brokers is not part of the lab: it needs three more broker containers that cannot coexist with the single broker of lab 10. The numbers of rows and duplicates change from run to run, so the README gives the results of one run as an example.
+
+### Lab 12
+
+Lab 12 (`labs/12-kinesis/`) uses the same delivery app and has its own stack, `serverless/stream/` (`lab12-kinesis`):
+
+- A Kinesis data stream `big-data-labs-orders` in provisioned mode with 2 shards, so that the partition key can be seen spreading the orders, and a retention of 24 hours.
+- A DynamoDB table `big-data-labs-order-events` (on-demand, partition key `order_id`, sort key `event_type`), so that an event that arrives twice replaces its item.
+- A Lambda function `big-data-labs-orders-consumer` (`consumer.py`, Python 3.13) with an event source mapping created by the `stream` event of the Serverless Framework: `batchSize` 100, `startingPosition` `TRIM_HORIZON` and `maximumRetryAttempts` 3.
+- Three SSM parameters (`OrdersStreamName`, `OrdersStreamArn` and `OrderEventsTableName`).
+
+The stack follows the convention of one file per kind of resource: `functions.yml` (the function and its `stream` event, included with `functions: ${file(functions.yml)}`), `iam.yml` (the role `ConsumerRole`, with the managed policy `AWSLambdaBasicExecutionRole` and one inline policy with the Kinesis and DynamoDB statements scoped to the ARNs of the stream and the table), `kinesis.yml`, `dynamodb.yml` and `parameters.yml`. The role is explicit because the role that the framework generates has `GetRecords`, `GetShardIterator`, `DescribeStream` and `ListStreams` but not `DescribeStreamSummary` and `ListShards`, which the Lambda documentation lists for a Kinesis event source.
+
+The producer (`producer/send_orders.py`) follows the pattern of lab 5: `PutRecords` in batches with the retry of the records that Kinesis rejects, `--dry-run`, and a plan of the events of each second that is deterministic for a seed (every order sends `order_created`, `order_confirmed` and then `order_delivered` or, in 8 % of the orders, `order_cancelled`, with the order id as the partition key). The Lambda documentation says that an event source mapping processes each record at least once, and a function that returns an error blocks the shard until the record expires or the retries end, so the function writes with `put_item`, which is idempotent for the same key. The Kinesis documentation contradicts itself on the maximum size of a record (1 MB in the terminology page and 10 MiB in the quotas page), so no lab text states a figure.
+
+### Lab 13
+
+Lab 13 (`labs/13-flink/`) counts the orders of a stream with Apache Flink, in Amazon Managed Service for Apache Flink (runtime `FLINK-1_20`: Flink 1.20 and Python 3.11). It has its own stack, `serverless/flink/` (`lab13-flink`), independent of lab 12:
+
+- `kinesis.yml`: the stream `big-data-labs-flink-orders` (1 shard, provisioned, 24 hours of retention).
+- `parameters.yml`: SSM parameters with the name and the ARN of the stream.
+- `s3.yml`: the bucket of the code, `big-data-labs-flink-<account id>`.
+- `dynamodb.yml`: the table `big-data-labs-order-windows`, with `restaurant` and `window_start` (both strings) as its key.
+- `iam.yml`: the role `FlinkRole`, with access to the code object, the read actions of Kinesis on its stream, `BatchWriteItem`, `DescribeTable` and `PutItem` on the table, and the log group.
+- `flink.yml`: the log group and the application `OrdersApplication`, with its CloudWatch logging option.
+
+CloudFormation fails to create the application if its code is not in S3, so the stack is deployed twice: `serverless deploy --param="application=skip"` (the condition `CreateApplication` is false, so everything but the application is created), then the upload of the zip with `aws s3 cp` and a plain `serverless deploy`. CloudFormation leaves the application in `READY`, so the README starts and stops it with `aws kinesisanalyticsv2 start-application` and `stop-application --force`.
+
+The application is PyFlink with SQL. `app/main.py` has the DDL of the Kinesis source (`TRIM_HORIZON` and a watermark of 5 seconds), the DDL of the DynamoDB sink, a view `new_orders` that keeps the first `order_created` event of each `event_id` with `ROW_NUMBER()`, and a `TUMBLE` window of one minute. It reads its parameters from the property group `lab13` of `/etc/flink/application_properties.json`. `occurred_at` arrives as text with `+00:00` and the `ISO-8601` format of the JSON of Flink does not parse it, so the source reads it as a string and a computed column `event_time` removes the zone.
+
+The service accepts one JAR, and merging the two `-sql-` JARs of the connectors fails (`NoSuchMethodError` of the AWS HTTP client). `app/pom.xml` therefore shades `flink-connector-aws-kinesis-streams` and `flink-connector-dynamodb` (version `5.1.0-1.20`, the one that the AWS table of connectors lists for Flink 1.20) into `pyflink-dependencies.jar`, and `app/build.py` runs `mvn package` and zips `main.py` and `lib/pyflink-dependencies.jar`. Maven is installed in the image next to the Java 17 JRE.
+
+The producer `producer/send_events.py` sends the same events as lab 12 plus copies of 5 % of them (same `event_id`) and, for 5 % of the new orders, a new `order_created` dated 2 minutes before (late). It prints the orders per minute that the windows must hold (on time and counted once), and `results.py` prints the windows of the table. A window only closes when a later event moves the watermark, so the last minute stays open until more events arrive.
+
+PyFlink 1.20 runs on Python 3.11 or lower, so the application does not run in the development container (Python 3.13). The SQL of `main.py` can be checked locally with `apache-flink==1.20.3` on Python 3.11 (`linux/amd64`, because the package has no Linux aarch64 wheel), a file source and DynamoDB Local.
 
 ## Lab conventions
 
-- Each lab README follows the same standard as the root `README.md`: a `# README` title with a table of contents, then Summary, Setup (the steps, each with its expected result) and Remove (how to destroy what was deployed), separated by `---`. A Glossary goes only when there is something to define, such as environment variables. A lab README does not say after which slide of the course it is done or which slides it relates to: the presentation points to the lab, not the other way around.
-- Windows compatibility matters: most students use Windows and the maintainer uses macOS. `.gitattributes` forces LF line endings on every text file and `.devcontainer.json` strips any CR from `.docker/*.sh` on creation. Keep both working when adding new file types or scripts (add the extension to `.gitattributes`).
-- The steps of a lab are run together in class, so the README has no per-step questions or exercises and there is no solutions file. SQL files have one statement per block with a comment on top, and the student runs one statement at a time (pgAdmin, the Athena console). In lab 1 every name carries its schema (`lab_01a.flat_orders`), with no `SET search_path`.
-- The expected result of each step comes from a real run, never from memory. When Claude cannot run a step (it writes to AWS), the README does not state a result until the developer has run it and the read-only queries confirm it.
+- Each lab README follows the same standard as the root `README.md`: a `# README` title with a table of contents, then Summary, Setup (the steps, each with its expected result) and Remove (how to destroy what was deployed), separated by `---`. A Glossary goes only when there is something to define, such as environment variables. A lab README does not say after which slide of the course it is done or which slides it replaces.
+- Windows compatibility matters, because the labs run on Windows and on macOS. `.gitattributes` forces LF line endings on every text file and `.devcontainer.json` strips any CR from `.docker/*.sh` on creation. Keep both working when adding new file types or scripts (add the extension to `.gitattributes`).
+- The steps of a lab are run together in a session, so the README has no per-step questions or exercises and there is no solutions file. SQL files have one statement per block with a comment on top, and the student runs one statement at a time (pgAdmin, the Athena console). In lab 1 every name carries its schema (`lab_01a.flat_orders`), with no `SET search_path`.
+- The expected result of each step comes from a real run, never from memory. When the agent cannot run a step (it writes to AWS), the README does not state a result that depends on a run until the user has run it and the read-only queries confirm it. Until then the "Expected" lines come only from the configuration and the documented behavior of the services.
 - Code and YAML carry no comments that justify a design decision or explain what was left out. Those reasons go in this file.
 - Data and schema names are in English (`orders`, `customers`, `products`, `order_items`, `reviews`, `clicks`).
 - Verify every claim about an AWS service against its official documentation before writing it into a lab. Do not answer from memory.
 - Serverless Framework, CLI only, no Serverless Dashboard: no `org:` or `app:` keys in any `serverless.yml`. `SERVERLESS_ACCESS_KEY` in `.envs/sls.env` is only for CLI licensing, and each student uses their own.
+
+## How to build and check a lab
+
+- **Local labs are checked by running every step for real** in throwaway containers on a private Docker network, with the same image and the same client version as the lab (for example `apache/kafka:4.3.2`, `postgres:18` and `python:3.13-slim-bookworm`), and the results of the README come from that run. A notebook is run completely with `jupyter nbconvert --to notebook --execute --allow-errors --output-dir <tmp>` so that its outputs can be read without writing them into the committed file, which stays without outputs. Remove the containers, networks and images that the check created, and any folder it left under `labs/shared/output/`.
+- **Kill processes to show a failure; do not simulate it.** A notebook that needs several processes at once (a generator and consumers) starts the scripts with `subprocess.Popen` and stops them with `kill()`, which is a crash: the consumers do not confirm their position. A consumer that was killed stays in its group until its session timeout (10 seconds in these labs), so a step that restarts a group or resets its position waits longer than that first.
+- **AWS labs are checked without deploying:** unit tests of the code that can run locally (the producer with a fake client, the Lambda function with a fake table), `cfn-lint` on the resource files with their `${self:...}` variables replaced and merged into one template, and `docker exec -w <stack folder> BigDataLabs serverless package` to read the generated CloudFormation template (roles, event source mapping, dependencies). `serverless package` only builds files in a `.serverless` folder, which is deleted afterwards. If the check needs a copy of the stack with a stand-in value, make the copy inside the repository (so that the plugins resolve) and delete it.
+- **The development container** has the `serverless` CLI (4.x), `cfn-lint` with `cfn-lint-serverless`, `yapf`, `pylint`, `pytest`, the `psql` client, `jq`, Java 17 and Maven.
+- **One file per kind of resource, always, also for Lambda:** `serverless.yml` stays short and includes `kinesis.yml`, `dynamodb.yml`, `iam.yml` (the roles, written explicitly with permissions scoped to the ARNs of the stack, as in labs 5 and 9), `parameters.yml` and, for functions, `functions.yml` with `functions: ${file(functions.yml)}`. Do not leave the IAM statements or the function inside `serverless.yml`.
+- **The diagrams** come from `docs/architecture.py`. Run it from a scratch folder: it writes every PNG in the current directory, so move only the new lab's two files (`labNN_*.png` and `labNN_*_small.png`) to `docs/` and delete the rest, so that the committed images of the other labs do not change. Check the small version: short labels, arrows that enter by the side (`headport="w"`) when a node has two consumers, and nothing cut at the edge.
+- **Formatting checks before a commit**, all in containers: `yapf --diff -r labs docs`, `pylint --rcfile=pyproject.toml` on the Python files of the lab, `prettier --check .` and `cspell` (every new correct word goes into `cspell.json`, sorted). The Node image `node:24-bookworm-slim` with the repository mounted runs `npx --no-install prettier` and `cspell` with the `node_modules` of the repository. `prettier --write` realigns Markdown tables, so a later text edit of a table row must be written against the realigned text.
+- **Pylint limits shape the scripts:** at most 15 local variables per function, so a long `main` is split into small functions; tests use `SimpleNamespace` fakes and not classes with one method.
 
 ## Serverless stacks
 
 There is one stack per folder, deployed on its own with `cd <folder> && serverless deploy`.
 
 - A stack folder has a short `serverless.yml` that includes one CloudFormation file per kind of resource (`s3.yml`, `glue.yml`, `iam.yml`, and so on) plus a `parameters.yml` when other stacks need its values. Shared stacks live in `labs/shared/serverless/<stack>/` and lab stacks in `labs/<NN>-<name>/serverless/<stack>/`.
-- `serverless.yml` header: `frameworkVersion: '^4.43.0'`, `configValidationMode: error`, `region: us-east-1`, `stackName: ${env:DEPLOY_APP}-${self:service}` and its own deployment bucket (plugin `serverless-deployment-bucket`). `@serverless/safeguards-plugin` rules are local (allowed regions and stages, and `no-wild-iam-role-statements` when the stack has IAM roles). `DEPLOY_APP=big-data-labs` is set in `.docker/docker-compose.yml`.
-- Every student deploys to their own AWS account, so the names that must be unique across AWS (S3 buckets, including the deployment bucket) include `${aws:accountId}`. There is no `DEVELOPER` variable and no stage in the names: the only stage is `dev`.
+- `serverless.yml` header: `frameworkVersion: '^4.43.0'`, `configValidationMode: error`, `region: us-east-1`, `stackName: ${env:DEPLOY_APP}-${self:service}` and its own deployment bucket (plugin `serverless-deployment-bucket`). The `@serverless/safeguards-plugin` rules are local: `framework-version` and `no-wild-iam-role-statements` as warnings, and allowed regions and stages as errors. `DEPLOY_APP=big-data-labs` is set in `.docker/docker-compose.yml`.
+- Every student deploys to their own AWS account, so the names that must be unique across AWS (S3 buckets, including the deployment bucket) include `${aws:accountId}`. The names carry no developer name and no stage: the only stage is `dev`.
+- The service of each stack is `base` (shared), `lab02-crawler`, `lab05-clicks`, `lab09-pipeline`, `lab12-kinesis` or `lab13-flink`, so the stack is `big-data-labs-<service>` (for example `big-data-labs-lab12-kinesis`) and its deployment bucket is `us-east-1.cfn.<service>.big-data-labs.<account id>.deploys`.
+- A stack takes a value that changes between deploys with `--param`, read in the YAML as `${param:<name>, '<default>'}` (`scheduleState` in lab 9 and `application` in lab 13).
 - A stack shares values with the others through SSM parameters named `/${AWS::StackName}/<Name>` (for example `/big-data-labs-base/LakeBucketName`), which other stacks read with `${ssm:...}` and the README reads with `aws ssm get-parameter`.
 - The lake bucket has encryption and blocks public access, and it has no versioning: with versioning, emptying the bucket before `serverless remove` would leave old versions and delete markers, and CloudFormation could not delete it.
 - `serverless remove` deletes the stack but leaves its deployment bucket behind, empty. The lab READMEs delete it with `aws s3 rb`. Each stack has its own deployment bucket, created by the `serverless-deployment-bucket` plugin with a name that includes the account id. A first deploy can fail with "The serverless deployment bucket ... does not exist" because the plugin has just created the bucket; deploying again fixes it.
-- Serverless Framework: the minimum is `^4.43.0`, the latest release when the labs were built (there is no v5).
+- The minimum version of the Serverless Framework is `^4.43.0`.
 - Validate without deploying: `cfn-lint` on the resource files with their `${self:...}` variables replaced, and `serverless print` once credentials exist.
 
 ## Dependencies and versions
 
-- Install a dependency from its official registry (PyPI, npm) at a pinned version, never from a Git repository at a commit. If a package seems to be missing, search it under other names and read the documentation of the project before saying it does not exist or does not install; the official AWS Glue library, for example, is `awsgluedataplanepython`, not `aws-glue-libs`.
+- Install a dependency from its official registry (PyPI, npm), never from a Git repository at a commit, and pin the version of the libraries that a lab depends on (for example `confluent-kafka==2.16.0` and `awsgluedataplanepython==6.0.0`). If a package seems to be missing, search it under other names and read the documentation of the project before saying it does not exist or does not install; the official AWS Glue library, for example, is `awsgluedataplanepython`, not `aws-glue-libs`.
 - Read the `requires-python` of a package and the versions it publishes: a package that declares another Python version is a reason to look for the version that matches the one of the image, not proof that it does not work.
 - Use the current version of a service or a library (for example the latest AWS Glue version), unless the documentation shows a reason against it. Do not choose an old version because of a tool the lab does not use.
 
@@ -77,17 +175,17 @@ There is one stack per folder, deployed on its own with `cd <folder> && serverle
 
 `npm run format` runs Prettier (JSON, YAML, Markdown) and `yapf` (Python, configured in `pyproject.toml`). `npm run format:check` checks without writing. `pylint` uses the same `pyproject.toml`.
 
-`npm run spell` runs cspell on Markdown, Python, SQL and YAML. Every word it reports that is correct (a service name, a SQL or Python identifier, a name from the sample data) goes into `words` in `cspell.json`, in alphabetical order and lowercase, so the editor and the command agree. Run it before each commit and leave it with zero issues. Misspelled words are fixed in the text, not added to the dictionary.
+`npm run spell` runs cspell on Markdown, Python, SQL and YAML. Every word it reports that is correct (a service name, a SQL or Python identifier, a name from the sample data) goes into `words` in `cspell.json`, in alphabetical order (ignoring case) and lowercase, except for HTML attributes such as `CELLBORDER`, so the editor and the command agree. Run it before each commit and leave it with zero issues. Misspelled words are fixed in the text, not added to the dictionary.
 
 ## Documentation convention
 
-Human-facing docs (`README.md` at any level) never reference `CLAUDE.md`: it is written for the AI agent working in this repository, not for people reading the project's documentation.
+Human-facing docs (`README.md` at any level) never reference `CLAUDE.md`: it is written for the AI agent working in this repository, not for the people reading the documentation of the project.
 
 ## Commit convention
 
-Base: Conventional Commits: types like `feat`/`fix`/`refactor`/`chore`/`docs`/`test`, imperative mood, no trailing period.
+Base: Conventional Commits, with types like `feat`, `fix`, `refactor`, `chore`, `docs` and `test`, in the imperative mood and with no trailing period.
 
-Each line of the message is a bullet `* <type>: <description>` (with a literal `*` at the start), one line per distinct change, even if several land in the same commit. No separate body, no additional explanation below the bullets. Example:
+Each line of the message is a bullet `* <type>: <description>` (with a literal `*` at the start), one line per distinct change, even if several land in the same commit. There is no separate body and no additional explanation below the bullets. Example:
 
 ```text
 * feat: add the local PostgreSQL and pgAdmin services
@@ -95,10 +193,10 @@ Each line of the message is a bullet `* <type>: <description>` (with a literal `
 * docs: add the lab 1A statement
 ```
 
-When a commit touches several things, reflect each one in its own bullet. If the changes are very different in nature, prefer several separate commits.
+When a commit touches several things, reflect each one in its own bullet. If the changes are very different in nature, make several separate commits: the code of a lab, its statement, its diagram, the documentation and the spelling dictionary each go in their own commit.
 
-**Never add Claude co-authorship to commits in this repository.**
+**Never add Claude co-authorship, or any line that attributes the commit to Claude, to commits or pull request descriptions in this repository.**
 
 ## Changelog convention
 
-`CHANGELOG.md` follows Keep a Changelog, with dates as `dd/mm/yyyy`. It lists the final state of each release under `### Added`, `### Changed`, `### Fixed` or `### Removed`, and not the fixes made along the way before something shipped. An `## [Unreleased]` heading goes above the latest release only when there is something in it. Update it in the same change that adds a lab or a feature, and before merging `init` into `develop`.
+`CHANGELOG.md` follows Keep a Changelog, with dates as `dd/mm/yyyy`. It lists the final state of each release under `### Added`, `### Changed`, `### Fixed` or `### Removed`, and not the fixes made along the way before something shipped. The labs are listed in ascending order. An `## [Unreleased]` heading goes above the latest release only when there is something in it. Update it in the same change that adds a lab or a feature, and before merging a working branch into `develop`.

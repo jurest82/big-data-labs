@@ -1,0 +1,9 @@
+Resources:
+  OrdersStream:
+    Type: AWS::Kinesis::Stream
+    Properties:
+      Name: ${self:custom.flink.streamName}
+      RetentionPeriodHours: 24
+      StreamModeDetails:
+        StreamMode: PROVISIONED
+      ShardCount: 1

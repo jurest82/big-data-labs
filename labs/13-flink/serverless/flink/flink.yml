@@ -1,0 +1,62 @@
+Conditions:
+  CreateApplication: !Equals
+    - ${self:custom.flink.application}
+    - create
+
+Resources:
+  FlinkLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /aws/kinesis-analytics/${self:custom.flink.applicationName}
+      RetentionInDays: 7
+
+  FlinkLogStream:
+    Type: AWS::Logs::LogStream
+    Properties:
+      LogGroupName: !Ref FlinkLogGroup
+      LogStreamName: kinesis-analytics-log-stream
+
+  OrdersApplication:
+    Type: AWS::KinesisAnalyticsV2::Application
+    Condition: CreateApplication
+    Properties:
+      ApplicationName: ${self:custom.flink.applicationName}
+      RuntimeEnvironment: FLINK-1_20
+      ServiceExecutionRole: !GetAtt FlinkRole.Arn
+      ApplicationConfiguration:
+        ApplicationCodeConfiguration:
+          CodeContentType: ZIPFILE
+          CodeContent:
+            S3ContentLocation:
+              BucketARN: !GetAtt CodeBucket.Arn
+              FileKey: app/app.zip
+        EnvironmentProperties:
+          PropertyGroups:
+            - PropertyGroupId: kinesis.analytics.flink.run.options
+              PropertyMap:
+                python: main.py
+                jarfile: lib/pyflink-dependencies.jar
+            - PropertyGroupId: lab13
+              PropertyMap:
+                stream.arn: !GetAtt OrdersStream.Arn
+                table.name: ${self:custom.flink.tableName}
+                region: ${self:provider.region}
+        FlinkApplicationConfiguration:
+          CheckpointConfiguration:
+            ConfigurationType: DEFAULT
+          MonitoringConfiguration:
+            ConfigurationType: CUSTOM
+            LogLevel: INFO
+            MetricsLevel: APPLICATION
+          ParallelismConfiguration:
+            ConfigurationType: DEFAULT
+        ApplicationSnapshotConfiguration:
+          SnapshotsEnabled: false
+
+  OrdersApplicationLogging:
+    Type: AWS::KinesisAnalyticsV2::ApplicationCloudWatchLoggingOption
+    Condition: CreateApplication
+    Properties:
+      ApplicationName: !Ref OrdersApplication
+      CloudWatchLoggingOption:
+        LogStreamARN: !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${FlinkLogGroup}:log-stream:${FlinkLogStream}

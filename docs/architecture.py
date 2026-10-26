@@ -10,7 +10,9 @@ with only the icons and their names, for the root README.
 import graphviz
 from diagrams import Diagram, Edge
 from diagrams.aws.analytics import (Athena, Glue, GlueCrawlers, GlueDataCatalog,
-                                    KinesisDataFirehose)
+                                    KinesisDataFirehose, KinesisDataStreams)
+from diagrams.aws.compute import Lambda
+from diagrams.aws.database import Dynamodb
 from diagrams.aws.integration import EventbridgeScheduler, StepFunctions
 from diagrams.aws.storage import S3
 from diagrams.generic.storage import Storage
@@ -357,6 +359,24 @@ def lab11(kit):
         postgres << kit.branch(label=kit.note("queries")) << notebook
 
 
+def lab12(kit):
+    with kit.diagram("Lab 12 - Kinesis Data Streams", "Lab 12",
+                     "lab12_kinesis"):
+        producer = Python(kit.pick("send_orders.py\norder events", "Producer"),
+                          height=kit.height)
+        stream = KinesisDataStreams(kit.pick("Kinesis Data Streams\n2 shards",
+                                             "Kinesis"),
+                                    height=kit.height)
+        consumer = Lambda(kit.pick("Lambda\nconsumer.py", "Lambda"),
+                          height=kit.height)
+        table = Dynamodb(kit.pick("DynamoDB\ntable order-events", "DynamoDB"),
+                         height=kit.height)
+
+        producer >> kit.flow(label=kit.note("key: order id")) >> stream
+        stream >> kit.flow(label=kit.note("batches of\nrecords")) >> consumer
+        consumer >> kit.flow(label=kit.note("PutItem")) >> table
+
+
 BLUE = "#336791"
 AMBER = "#b45309"
 TEAL = "#0f766e"
@@ -573,5 +593,5 @@ def lab01b(kit):
 for is_small in (False, True):
     lab_kit = Kit(is_small)
     for lab in (lab01a, lab01b, lab02, lab03, lab04, lab05, lab06, lab07, lab08,
-                lab09, lab10, lab11):
+                lab09, lab10, lab11, lab12):
         lab(lab_kit)

@@ -1,0 +1,50 @@
+service: lab12-kinesis
+frameworkVersion: '^4.43.0'
+configValidationMode: error
+
+provider:
+  name: aws
+  stage: dev
+  region: us-east-1
+  runtime: python3.13
+  stackName: ${env:DEPLOY_APP}-${self:service}
+  deploymentBucket:
+    name: ${self:provider.region}.cfn.${self:service}.${env:DEPLOY_APP}.${aws:accountId}.deploys
+
+plugins:
+  - serverless-deployment-bucket
+  - '@serverless/safeguards-plugin'
+
+package:
+  patterns:
+    - '!**'
+    - consumer.py
+
+functions: ${file(functions.yml)}
+
+resources:
+  - ${file(kinesis.yml)}
+  - ${file(dynamodb.yml)}
+  - ${file(iam.yml)}
+  - ${file(parameters.yml)}
+
+custom:
+  safeguards:
+    - safeguard: framework-version
+      enforcementLevel: warning
+      config: ${self:frameworkVersion}
+    - safeguard: allowed-regions
+      enforcementLevel: error
+      config:
+        - ${self:provider.region}
+    - safeguard: no-wild-iam-role-statements
+      enforcementLevel: warning
+    - safeguard: allowed-stages
+      enforcementLevel: error
+      config:
+        - dev
+  servicePrefix: ${env:DEPLOY_APP}-${self:service}
+  orders:
+    streamName: ${env:DEPLOY_APP}-orders
+    tableName: ${env:DEPLOY_APP}-order-events
+    functionName: ${env:DEPLOY_APP}-orders-consumer

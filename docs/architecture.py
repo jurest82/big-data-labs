@@ -10,7 +10,8 @@ with only the icons and their names, for the root README.
 import graphviz
 from diagrams import Diagram, Edge
 from diagrams.aws.analytics import (Athena, Glue, GlueCrawlers, GlueDataCatalog,
-                                    KinesisDataFirehose, KinesisDataStreams)
+                                    KinesisDataAnalytics, KinesisDataFirehose,
+                                    KinesisDataStreams)
 from diagrams.aws.compute import Lambda
 from diagrams.aws.database import Dynamodb
 from diagrams.aws.integration import EventbridgeScheduler, StepFunctions
@@ -377,6 +378,26 @@ def lab12(kit):
         consumer >> kit.flow(label=kit.note("PutItem")) >> table
 
 
+def lab13(kit):
+    with kit.diagram("Lab 13 - Flink with windows", "Lab 13", "lab13_flink"):
+        producer = Python(kit.pick("send_events.py\nrepeated and late events",
+                                   "Producer"),
+                          height=kit.height)
+        stream = KinesisDataStreams(kit.pick("Kinesis Data Streams\n1 shard",
+                                             "Kinesis"),
+                                    height=kit.height)
+        flink = KinesisDataAnalytics(kit.pick("Managed Flink\nmain.py",
+                                              "Flink"),
+                                     height=kit.height)
+        table = Dynamodb(kit.pick("DynamoDB\ntable order-windows", "DynamoDB"),
+                         height=kit.height)
+
+        producer >> kit.flow(label=kit.note("key: order id")) >> stream
+        stream >> kit.flow(label=kit.note("events")) >> flink
+        flink >> kit.flow(
+            label=kit.note("one item per restaurant\nand minute")) >> table
+
+
 BLUE = "#336791"
 AMBER = "#b45309"
 TEAL = "#0f766e"
@@ -593,5 +614,5 @@ def lab01b(kit):
 for is_small in (False, True):
     lab_kit = Kit(is_small)
     for lab in (lab01a, lab01b, lab02, lab03, lab04, lab05, lab06, lab07, lab08,
-                lab09, lab10, lab11, lab12):
+                lab09, lab10, lab11, lab12, lab13):
         lab(lab_kit)

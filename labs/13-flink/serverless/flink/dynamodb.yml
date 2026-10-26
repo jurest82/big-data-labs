@@ -1,0 +1,16 @@
+Resources:
+  OrderWindowsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: ${self:custom.flink.tableName}
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: restaurant
+          AttributeType: S
+        - AttributeName: window_start
+          AttributeType: S
+      KeySchema:
+        - AttributeName: restaurant
+          KeyType: HASH
+        - AttributeName: window_start
+          KeyType: RANGE

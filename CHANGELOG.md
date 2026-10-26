@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 25/10/2026
+
+### Added
+
+- Lab 10: Apache Kafka on your computer, with its diagram in `docs/`, a single-node Kafka service in the development container and four Python scripts (create the topic, a producer of order events with the order id as the key, a consumer of a group that confirms its position and a command that shows the offsets and the lag) that show partitions, keys, offsets, confirmed positions, consumer groups and the rebalance
+- Lab 11: from Kafka to PostgreSQL, with its diagram in `docs/`, a notebook that starts a generator of random order events and two consumers that insert them into two tables of the local PostgreSQL, stops the consumers like a crash would, shows the repeated events in the table without a key and none in the one with `event_id` as its primary key, adds a second consumer to a group and reprocesses every event from the beginning
+- Lab 12: order events in real time with Kinesis Data Streams, with its own stack (a stream with two shards, a DynamoDB table and a Lambda function that reads the stream and writes each event to the table), a Python producer with its tests, and its diagram in `docs/`
+- Lab 13: Apache Flink with windows on order events, with its own stack (a Kinesis stream, a Managed Service for Apache Flink application that reads it, a DynamoDB table, a bucket for the code and its role), a PyFlink application that ignores repeated events and counts the orders of each restaurant in windows of one minute, a Python producer of repeated and late events with its tests, a script that reads the windows, and its diagram in `docs/`
+- Development container: the Kafka service (`apache/kafka:4.3.2`), the `confluent-kafka` client and Maven in the image
+
 ## [1.1.0] - 18/10/2026
 
 ### Added

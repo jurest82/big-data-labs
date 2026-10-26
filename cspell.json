@@ -97,6 +97,7 @@
     "pylint",
     "pyproject",
     "pyspark",
+    "pytest",
     "pérez",
     "rankdir",
     "ranksep",

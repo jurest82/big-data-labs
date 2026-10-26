@@ -47,7 +47,7 @@ Nothing from this project is installed directly on the host. Everything (the `aw
 | 12  | Order events in real time: Kinesis Data Streams, Lambda and DynamoDB        | AWS              |
 | 13  | Windows of one minute with Apache Flink on order events                     | AWS              |
 
-The status of each lab is in the table of the root `README.md`: `In review` until the user has deployed or run the lab and its README, and `Ready` after that.
+A lab is added to the table of the root `README.md` (and to its row of diagrams) once the user has deployed or run it and its README.
 
 ### Labs 2 to 5
 

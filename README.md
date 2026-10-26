@@ -20,30 +20,30 @@
 
 ## Summary
 
-`Big Data Labs` is the set of hands-on labs of **SI7006 Storage and Processing of Big Data** (EAFIT, master's program in Data Science and Analytics). The labs follow the course presentations. The first ones use an online store as their example, with orders, customers, products, reviews, product photos and click events. Later labs may use a different context.
+`Big Data Labs` is the set of hands-on labs of **SI7006 Storage and Processing of Big Data** (EAFIT, master's program in Data Science and Analytics). The labs follow the course presentations. Labs 1 to 5 use an online store as their example, labs 6 to 9 the flights of an airline, and labs 10 to 13 a delivery app.
 
 It is built as a teaching project: every lab runs inside Docker, so nothing is installed on your computer except Docker and an editor. The labs that use AWS deploy to your own AWS account with Serverless Framework, and their READMEs end with the steps that remove everything they created.
 
 ### The labs
 
-| Lab | Topic                                                                       | Runs on          | Status |
-| --- | --------------------------------------------------------------------------- | ---------------- | ------ |
-| 1A  | OLTP anomalies, normalization and JOINs                                     | Local PostgreSQL | Ready  |
-| 1B  | Star schema, a query by category and month, and a data mart                 | Local PostgreSQL | Ready  |
-| 2   | Data lake: S3, a Glue crawler and Athena                                    | AWS              | Ready  |
-| 3   | Apache Iceberg table: update, schema evolution and time travel              | AWS              | Ready  |
-| 4   | Medallion layers (bronze, silver, gold) with SQL in Athena                  | AWS              | Ready  |
-| 5   | Streaming click events to S3 with Firehose                                  | AWS              | Ready  |
-| 6   | Apache Spark on your computer, with the flights of an airline               | Local Spark      | Ready  |
-| 7   | Parquet files, partitioning and compression with Spark                      | Local Spark      | Ready  |
-| 8   | PostgreSQL and Spark SQL on the same flights                                | Local Spark      | Ready  |
-| 9   | A batch pipeline: a Spark job in AWS Glue, Step Functions and a schedule    | AWS              | Ready  |
-| 10  | Apache Kafka on your computer: partitions, offsets and consumer groups      | Local Kafka      | Ready  |
-| 11  | From Kafka to PostgreSQL: a live pipeline, repeated events and reprocessing | Local Kafka      | Ready  |
-| 12  | Order events in real time: Kinesis Data Streams, Lambda and DynamoDB        | AWS              | Ready  |
-| 13  | Windows of one minute with Apache Flink on order events                     | AWS              | Ready  |
+| Lab | Topic                                                                       | Runs on          |
+| --- | --------------------------------------------------------------------------- | ---------------- |
+| 1A  | OLTP anomalies, normalization and JOINs                                     | Local PostgreSQL |
+| 1B  | Star schema, a query by category and month, and a data mart                 | Local PostgreSQL |
+| 2   | Data lake: S3, a Glue crawler and Athena                                    | AWS              |
+| 3   | Apache Iceberg table: update, schema evolution and time travel              | AWS              |
+| 4   | Medallion layers (bronze, silver, gold) with SQL in Athena                  | AWS              |
+| 5   | Streaming click events to S3 with Firehose                                  | AWS              |
+| 6   | Apache Spark on your computer, with the flights of an airline               | Local Spark      |
+| 7   | Parquet files, partitioning and compression with Spark                      | Local Spark      |
+| 8   | PostgreSQL and Spark SQL on the same flights                                | Local Spark      |
+| 9   | A batch pipeline: a Spark job in AWS Glue, Step Functions and a schedule    | AWS              |
+| 10  | Apache Kafka on your computer: partitions, offsets and consumer groups      | Local Kafka      |
+| 11  | From Kafka to PostgreSQL: a live pipeline, repeated events and reprocessing | Local Kafka      |
+| 12  | Order events in real time: Kinesis Data Streams, Lambda and DynamoDB        | AWS              |
+| 13  | Windows of one minute with Apache Flink on order events                     | AWS              |
 
-Labs 1, 6, 7, 8, 10 and 11 run only on your computer. Labs 2 to 4 work with the free plan of your AWS account. Lab 5, and the labs after it, need the paid plan, and its README explains how to upgrade. Labs 2 to 4 share one base stack (an S3 bucket with zones, a Glue database and an Athena workgroup), deployed once. Labs 5, 9, 12 and 13 have their own stack. Each lab has its own README with its steps and how to remove what it created. Labs 2 to 4 remove the base stack together, at the end of lab 4.
+Labs 1, 6, 7, 8, 10 and 11 run only on your computer. Labs 2 to 4 work with the free plan of your AWS account; from lab 5 on, the AWS labs assume the paid plan, and the README of lab 5 explains how to upgrade. Labs 2 to 4 share one base stack (an S3 bucket with zones, a Glue database and an Athena workgroup), deployed once and removed together at the end of lab 4. Lab 2 also has a crawler stack, and labs 5, 9, 12 and 13 each have their own stack.
 
 | Lab 1A: normalization                                                                                                          | Lab 1B: star schema                                                                                                   |
 | ------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------- |
@@ -93,7 +93,7 @@ These steps are tailored to work with Visual Studio Code, but you are free to ch
 
 ### Environment variables
 
-At `.envs` folder, copy `aws.env.example` to `aws.env` and `sls.env.example` to `sls.env`, and fill them in with the variables described [here](#glossary). You need them only for the labs that run on AWS: lab 1 works without them.
+At `.envs` folder, copy `aws.env.example` to `aws.env` and `sls.env.example` to `sls.env`, and fill them in with the variables described [here](#glossary). You need them only for the labs that run on AWS: the local labs work without them.
 
 ### Local services
 
@@ -101,7 +101,7 @@ The development container starts three more services, and publishes the web UI o
 
 - **PostgreSQL**: `localhost:5432`, user `postgres`, password `example`, database `shop`. Inside the development container, `psql` already points to it, so you can run `psql` with no flags.
 - **pgAdmin**: <http://localhost:5050>. The server is already registered; the first time you connect, it asks for the password: `example`.
-- **Kafka**: `kafka:9092`, reachable only from inside the development container, which is where the scripts of lab 10 run.
+- **Kafka**: `kafka:9092`, reachable only from inside the development container, which is where the scripts of labs 10 and 11 run.
 - **Spark web UI**: <http://localhost:4040>. It answers only while a Spark session of lab 6, 7 or 8 is open.
 
 ### Windows
@@ -112,19 +112,13 @@ Use Docker Desktop with the WSL 2 backend, and clone the repository inside the L
 
 ### Deployment
 
-You can deploy `Cloud Formation Stacks` using `Serverless Framework` syntax: <https://www.serverless.com/framework/docs/providers/aws/cli-reference/deploy/>
-
-The labs that deploy their own stacks keep them under `labs/<NN>-<name>/serverless/`, and the base stack shared by labs 2 to 4 is in `labs/shared/serverless/base/`. Follow the lab's README for the deployment order. The stacks deploy to `us-east-1`: set `AWS_DEFAULT_REGION=us-east-1` in `.envs/aws.env`.
+The AWS labs deploy CloudFormation stacks with the [Serverless Framework](https://www.serverless.com/framework/docs/providers/aws/cli-reference/deploy/), from the terminal of the development container: `cd <stack folder> && serverless deploy`. The stack of each lab is in `labs/<NN>-<name>/serverless/`, and the base stack shared by labs 2 to 4 is in `labs/shared/serverless/base/`. Follow the README of the lab for the steps and their order. The stacks deploy to `us-east-1`: set `AWS_DEFAULT_REGION=us-east-1` in `.envs/aws.env`.
 
 ### Remove
 
-You must use `Serverless Framework` remove command as primary option: <https://www.serverless.com/framework/docs/providers/aws/cli-reference/remove/>
+Remove a stack with the [`serverless remove`](https://www.serverless.com/framework/docs/providers/aws/cli-reference/remove/) command. If it fails, find the reason in the AWS Console, fix it and run the command again.
 
-If `remove` command fails for whatever reason, you'll need to investigate the reason using `AWS Console` at your browser, solve the issue and then re-attempt the `remove` command.
-
-You can, alternatively, delete the `AWS Cloud Formation` stack manually using `AWS Console` at your browser. But it's recommended to do it using the `remove` command from Serverless Framework.
-
-`Cloud Formation` cannot delete an S3 bucket that still has objects. The lab READMEs include the step that empties the bucket before you remove its stack. `serverless remove` also leaves each stack's deployment bucket behind, empty, so the lab READMEs delete it with `aws s3 rb`.
+CloudFormation cannot delete an S3 bucket that still has objects, so the lab READMEs empty the bucket before they remove the stack. `serverless remove` also leaves the deployment bucket of each stack behind, empty, so the READMEs delete it with `aws s3 rb`.
 
 ---
 
@@ -139,7 +133,7 @@ You can, alternatively, delete the `AWS Cloud Formation` stack manually using `A
 
 ### Serverless Framework environment variables: `.envs/sls.env`
 
-- `SERVERLESS_ACCESS_KEY`: Serverless _Secret API Key_. Needed to deploy stack information to Serverless cloud.
+- `SERVERLESS_ACCESS_KEY`: _Access Key_ of your Serverless account. The Serverless Framework CLI needs it to run.
 
 ---
 
